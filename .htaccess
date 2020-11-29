@@ -1,0 +1,13 @@
+Options -Indexes
+DirectoryIndex /Fabric-Agency-Database/application/controller/index.php
+RewriteEngine On
+ 
+RewriteRule ^application/models/.* - [F,L,NC]
+
+RewriteRule ^application/views/.* - [F,L,NC]
+
+RewriteRule ^secret/.* - [F,L,NC]
+
+RewriteRule "^$" ""
+
+RewriteRule "^([a-zA-Z0-9]+)$" "?page=$1"
