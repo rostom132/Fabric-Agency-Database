@@ -6,7 +6,7 @@
             'servername' => "localhost",
             'username' => "root",
             'password' => "",
-            'dbname' => "web_ass",
+            'dbname' => "db_ass2",
         )
 
     );
