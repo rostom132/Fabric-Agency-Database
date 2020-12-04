@@ -34,7 +34,7 @@
          */ 
         function convertToArray($result){
             if(mysqli_num_rows($result)) return mysqli_fetch_all($result, 1);
-            return [[]];
+            return [];
         }
 
         /**
