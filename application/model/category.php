@@ -9,6 +9,13 @@
             return $GLOBALS['db_conn']->convertToArray($result);
         }
 
+        static function getAllCategories() {
+            $result = $GLOBALS['db_conn']->queryData(
+                "SELECT DISTINCT`categoryName` as category, category.r_supplierCode as id FROM category"
+            );
+            return $GLOBALS['db_conn']->convertToArray($result);
+        }
+
         static function getSellingPrice($supplier_id){
             $result = $GLOBALS['db_conn']->queryData(
                 "SELECT `categoryCode` as code, `price`, `date` FROM category_sellingprice 
