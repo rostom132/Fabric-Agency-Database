@@ -1,50 +1,21 @@
-.register-form {
-    position: relative;
-    margin-top: 20px;
-    border-radius: 2px;
-    background-color: #fff;
-}
-
-.form__title {
-    display: flex;
-    align-items: center;
-    justify-content: left;
-    width: 100%;
-    background-color: #4BBADC;
-    padding: 10px;
-    font-size: 24px;
-    font-weight: 700;
-    color: #fff;
-}
-
-.form__body {
-    width: 100%;
-}
-
 .group-row {
     margin-bottom: 30px;
     margin-top: 30px;
-}
-
-.form__field--format {
-    color: #4BBADC;
-    font-size: 18px;
-    font-weight: 700;
 }
 
 .required {
     color: red;
 }
 
-.input-label {
-    margin-right: 15px;
-    font-weight: 700;
+.input_field {
+    height: 35px;
 }
 
 .schedule_add_btn {
     background-color: #4BBADC;
-    border-radius: 100px;
-    padding: 10px;
+    border-radius: 50px;
+    border: 2px solid black;
+    padding: 5px 20px;
 }
 
 .disable {
@@ -66,6 +37,8 @@
 
 .schedule_icon {
     background-color: transparent;
+    outline: none;
+    border: none;
     margin-right: 20px;
 }
 
@@ -82,24 +55,39 @@
     transition: .3s;
 }
 
-.class_description {
-    border: 1px solid black;
-    padding: 10px;
-    min-height: 150px;
-    width: 80%;
-}
-
-.registerClass-submit-btn {
-    padding: 20px 40px;
+.registerSupplier-submit-btn {
+    padding: 10px 30px;
     border-radius: 50px;
     background-color: #4BBADC;
+    border: 2px solid black;
     color: #ffffff
 }
 
-.registerClass-submit-btn:focus {
+.registerSupplier-submit-btn:focus {
     outline: none;
 }
 
-.container_addInfo {
-    border: solid black 1px;
+.addInfo {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.addInfo__form {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 2px solid black;
+}
+
+.addInfo::before {
+    content: "Add Supplier Information";
+    color: black;
+    font-size: 32px;
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
 }

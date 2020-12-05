@@ -7,9 +7,12 @@
     <title>Document</title>
 
     <link rel="stylesheet" href="./static/css/category.css">
+    <script type="module" src="./static/js/category.js"></script>
     <!-- CSS Library -->
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 </head>
 
 <body>
@@ -17,99 +20,21 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="form-group">
-                    <label for="exampleDropdown">#1 # Dropdown Select with "data-live-search" </label>
-                    <select data-live-search="true" class="form-control selectpicker" id="providers">
-                        <option>Mango</option>
-                        <option>Orange</option>
-                        <option>Lychee</option>
-                        <option>Pineapple</option>
-                        <option>Apple</option>
-                        <option>Banana</option>
-                        <option>Grapes</option>
-                        <option>Water Melon</option>
-                        <option>Mango</option>
-                        <option>Orange</option>
-                        <option>Lychee</option>
-                        <option>Pineapple</option>
-                        <option>Apple</option>
-                        <option>Banana</option>
-                        <option>Grapes</option>
-                        <option>Water Melon</option>
-                        <option>Mango</option>
-                        <option>Orange</option>
-                        <option>Lychee</option>
-                        <option>Pineapple</option>
-                        <option>Apple</option>
+                    <label for="exampleDropdown"># Select a Supplier name:</label>
+                    <select id="supplier" data-live-search="true" class="form-control show-tick selectpicker">
                     </select>
                 </div>
             </div>
-
         </div>
     </div>
-    <div class="container shadow" style="padding: 3rem; margin-top: 2rem; background-color: #4BBADC;">
-        <div class="row">
-            <div class="col-lg-12 containerCategory">
-                <h1>Fabric Agency Category</h1>
-                <br>
-                <table class="style_table" border="1">
-                    <tr>
-                        <th style="width: 20%;">Category name</th>
-                        <th style="width: 20%;">Date</th>
-                        <th style="width: 20%;">Purchase Price</th>
-                        <th style="width: 20%;">Quanity</th>
-                        <th style="width: 20%;">Supplier</th>
-                    </tr>
-                    <tr>
-                        <td>A</td>
-                        <td>B</td>
-                        <td>C</td>
-                        <td>D</td>
-                        <td class="tooltip">
-                            E
-                            <div class="tooltiptext">
-                                <div class="Supplier_InfoPopup">
-                                    <div>Name: Exawxaws</div>
-                                    <div>Address: Aashxhaklwxixjax</div>
-                                    <div>Tax Code: A123123123</div>
-                                    <div>Bank Account: ABCDSX</div>
-                                    <div>Phone: 0101923901283</div>
-                                </div>
-                            </div>
-                        </td>
-
-                    </tr>
-                    <tr>
-                        <td id="Cate_name">A</td>
-                        <td id="Date">B</td>
-                        <td id="Purchase_price">C</td>
-                        <td id="Quanity">D</td>
-                        <td id="Supplier" class="tooltip">
-                            K
-                            <div class="tooltiptext">
-                                <div class="Supplier_InfoPopup">
-                                    <div id="Supplier_name">Name: Exawxaws</div>
-                                    <div id="Supplier_address">Address: Aashxhaklwxixjax</div>
-                                    <div id="Tax_code">Tax Code: A123123123</div>
-                                    <div id="Bank_account">Bank Account: ABCDSX</div>
-                                    <div class="phone-numbers">Phone:
-                                        <!-- <div> -->
-                                        <div>091756505</div>
-                                        <div>0917565059</div>
-                                        <div>0917565059</div>
-                                        <!-- <div>0917565059</div> -->
-                                        <!-- </div> -->
-
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-
-                    </tr>
-                </table>
-            </div>
+    <div class="container shadow" style="padding: 3rem; margin-top: 2rem;background-color: #4BBADC;text-align: center;">
+        <div id="table_supplier">
+            <span style="text-align: center; font-weight: 200px; font-size: 80px;">Waiting for a selection @_@</span>
         </div>
-</body>
 
-<script src="./static/js/category.js"></script>
+        <br>
+
+        <div id="table_category"></div>
+</body>
 
 </html>

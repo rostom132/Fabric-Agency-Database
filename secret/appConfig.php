@@ -4,9 +4,9 @@
         //Database configuration
         'configDB' => array (
             'servername' => "localhost",
-            'username' => "root",
-            'password' => "",
-            'dbname' => "web_ass",
+            'username' => "manager",
+            'password' => "tien1234",
+            'dbname' => "fabric",
         )
 
     );
