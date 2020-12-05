@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 03, 2020 at 02:33 PM
+-- Generation Time: Dec 05, 2020 at 05:29 AM
 -- Server version: 10.4.14-MariaDB
 -- PHP Version: 7.4.10
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `db_ass2`
+-- Database: `db_ass2_test`
 --
 
 DELIMITER $$
@@ -46,6 +46,25 @@ WHERE r_provideInformation.categoryCode = category.categoryCode AND category.r_s
 RETURN totalPurchasePrice;
 END$$
 
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_length` (`new_categoryCode` INT(10), `new_boltCode` INT(10)) RETURNS INT(11) BEGIN
+    DECLARE new_length FLOAT;
+    SELECT bolt.length INTO new_length
+    FROM bolt
+    WHERE new_categoryCode = bolt.categoryCode and new_boltCode = bolt.boltCode
+    LIMIT 1;
+    RETURN new_length;
+END$$
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_selling_price` (`new_categoryCode` INT(10)) RETURNS INT(11) BEGIN
+    DECLARE new_price INT(6);
+    SELECT category_sellingprice.price INTO new_price
+    FROM category
+    JOIN category_sellingprice ON category_sellingprice.categoryCode = category.categoryCode
+    WHERE category.categoryCode = new_categoryCode and category_sellingprice.date <= curdate()
+    ORDER BY category_sellingprice.date DESC LIMIT 1;
+    RETURN new_price;
+END$$
+
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -65,12 +84,12 @@ CREATE TABLE `bolt` (
 --
 
 INSERT INTO `bolt` (`categoryCode`, `boltCode`, `length`) VALUES
-(1, 1, 10),
-(1, 2, 20),
+(1, 1, 20),
+(1, 2, 15),
 (1, 3, 50),
 (1, 4, 100),
 (2, 1, 10),
-(2, 2, 20),
+(2, 2, 15),
 (3, 1, 10),
 (3, 2, 20),
 (4, 1, 10),
@@ -84,11 +103,16 @@ INSERT INTO `bolt` (`categoryCode`, `boltCode`, `length`) VALUES
 (8, 1, 10),
 (8, 2, 20),
 (9, 1, 10),
-(9, 2, 20);
+(9, 2, 20),
+(10, 1, 15);
 
 --
 -- Triggers `bolt`
 --
+DELIMITER $$
+CREATE TRIGGER `delete_quantityBolt` AFTER DELETE ON `bolt` FOR EACH ROW UPDATE category SET quantity = quantity - 1 WHERE categoryCode = OLD.categoryCode
+$$
+DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `quantityBolt` AFTER INSERT ON `bolt` FOR EACH ROW UPDATE category SET quantity = quantity + 1 WHERE categoryCode = NEW.categoryCode
 $$
@@ -122,7 +146,7 @@ INSERT INTO `category` (`categoryCode`, `categoryName`, `color`, `quantity`, `r_
 (7, 'Leather', 'blue', 2, 3),
 (8, 'Leather', 'green', 2, 3),
 (9, 'Leather', 'purple', 2, 3),
-(10, 'Silk', 'cyan', 0, 1),
+(10, 'Silk', 'cyan', 1, 1),
 (11, 'Leather', 'cyan', 0, 3),
 (12, 'Leather', 'grey', 0, 3);
 
@@ -168,7 +192,7 @@ CREATE TABLE `customer` (
   `customerFirstName` varchar(70) NOT NULL,
   `customerLastName` varchar(70) NOT NULL,
   `address` varchar(70) NOT NULL,
-  `arrearage` int(10) UNSIGNED NOT NULL
+  `arrearage` int(10) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -176,7 +200,7 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`customerCode`, `customerFirstName`, `customerLastName`, `address`, `arrearage`) VALUES
-(1, 'Thien', 'Nhan Ngoc', 'Bình Tân', 100000),
+(1, 'Thien', 'Nhan Ngoc', 'Bình Tân', 167850),
 (2, 'Tien', 'Tran Dinh', '110B Tân Phú', 20000),
 (3, 'Phuong', 'Pham Nhat', '11/7 Tân Bình', 30000);
 
@@ -197,9 +221,23 @@ CREATE TABLE `customer_order` (
 --
 
 INSERT INTO `customer_order` (`orderCode`, `totalPrice`, `r_customerCode`) VALUES
-(1, 30000, 1),
+(1, 97850, 1),
 (5, 45000, 2),
-(6, 80000, 3);
+(6, 162500, 3);
+
+--
+-- Triggers `customer_order`
+--
+DELIMITER $$
+CREATE TRIGGER `calc_arrearage` AFTER UPDATE ON `customer_order` FOR EACH ROW BEGIN
+	IF !(NEW.totalPrice <=> OLD.totalPrice) THEN
+   		UPDATE customer
+        SET arrearage = arrearage + (NEW.totalPrice - OLD.totalPrice)
+        WHERE customer.customerCode = NEW.r_customerCode;
+   	END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -285,10 +323,11 @@ CREATE TABLE `relationcontain_containbolt` (
 INSERT INTO `relationcontain_containbolt` (`categoryCode`, `boltCode`, `orderCode`) VALUES
 (1, 1, 1),
 (1, 2, 1),
+(1, 3, 1),
 (4, 1, 5),
 (4, 2, 5),
-(1, 3, 6),
-(5, 1, 6);
+(5, 1, 6),
+(10, 1, 6);
 
 --
 -- Triggers `relationcontain_containbolt`
@@ -297,20 +336,39 @@ DELIMITER $$
 CREATE TRIGGER `calc_totalPrice` AFTER INSERT ON `relationcontain_containbolt` FOR EACH ROW BEGIN
     DECLARE length FLOAT;
     DECLARE price INT(10) DEFAULT 0;
-    SET length = (
-        SELECT bolt.length
-        FROM bolt
-        WHERE NEW.categorycode = bolt.categoryCode and NEW.boltcode = bolt.boltCode
-        LIMIT 1
-    );
-    SET price = (
-        SELECT category_sellingprice.price
-        FROM category
-        JOIN category_sellingprice ON category_sellingprice.categoryCode = category.categoryCode
-        WHERE category.categoryCode = NEW.categoryCode and category_sellingprice.date <= curdate()
-        ORDER BY category_sellingprice.date DESC LIMIT 1
-    );
+    SET length = (select get_length(NEW.categoryCode, NEW.boltcode));
+    SET price = (select get_selling_price(NEW.categoryCode));
     UPDATE customer_order SET customer_order.totalPrice = customer_order.totalPrice + price*length WHERE customer_order.orderCode = NEW.orderCode;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `update_totalPrice` AFTER UPDATE ON `relationcontain_containbolt` FOR EACH ROW BEGIN
+    DECLARE length FLOAT;
+    DECLARE old_length FLOAT;
+    DECLARE price INT(10) DEFAULT 0;
+    DECLARE old_selling_price INT(6);
+    DECLARE change_count INT(10) DEFAULT 0;
+    IF (!(NEW.boltCode <=> OLD.boltCode) AND !(NEW.categoryCode <=> OLD.categoryCode)) THEN
+      SET length = (select get_length(NEW.categoryCode, NEW.boltcode));
+      SET price = (select get_selling_price(NEW.categoryCode));
+      SET change_count = change_count + 1;
+    ELSE
+      IF !(NEW.boltCode <=> OLD.boltCode) THEN
+        SET length = (select get_length(OLD.categoryCode, NEW.boltCode));
+        SET price = (select get_selling_price(OLD.categoryCode));
+        SET change_count = change_count + 1;
+      ELSEIF !(NEW.categoryCode <=> OLD.categoryCode) THEN
+        SET length = (select get_length(NEW.categoryCode, OLD.boltCode));
+        SET price = (select get_selling_price(NEW.categoryCode));
+        SET change_count = change_count + 1;
+      END IF;
+    END IF;
+    IF (change_count > 0) THEN
+      SET old_length = (select get_length(OLD.categoryCode, OLD.boltCode));
+      SET old_selling_price = (select get_selling_price(OLD.categoryCode));
+      UPDATE customer_order SET customer_order.totalPrice = customer_order.totalPrice + (price*length - old_length*old_selling_price) WHERE customer_order.orderCode = orderCode;
+    END IF;
 END
 $$
 DELIMITER ;
@@ -354,6 +412,7 @@ CREATE TABLE `relationprovide_provideinformation` (
 
 INSERT INTO `relationprovide_provideinformation` (`categoryCode`, `purchasePrice`, `quantity`, `date`) VALUES
 (1, 500, 0, '2020-12-01'),
+(1, 7000, 0, '2020-12-05'),
 (2, 1000, 0, '2020-12-01'),
 (3, 1500, 0, '2020-12-01'),
 (4, 2000, 0, '2020-12-01'),
@@ -362,7 +421,7 @@ INSERT INTO `relationprovide_provideinformation` (`categoryCode`, `purchasePrice
 (7, 3500, 0, '2020-12-01'),
 (8, 4000, 0, '2020-12-01'),
 (9, 4500, 0, '2020-12-01'),
-(10, 5000, 0, '2020-12-02'),
+(10, 5000, 15, '2020-12-02'),
 (11, 5500, 0, '2020-12-02'),
 (12, 6000, 0, '2020-12-02');
 
@@ -465,7 +524,7 @@ ALTER TABLE `relationcontain_containbolt`
 -- Indexes for table `relationprocess_processorder`
 --
 ALTER TABLE `relationprocess_processorder`
-  ADD PRIMARY KEY (`orderCode`,`employeeCode`),
+  ADD PRIMARY KEY (`orderCode`) USING BTREE,
   ADD KEY `relationProcess_processsOrder_fk_employee` (`employeeCode`);
 
 --
@@ -572,7 +631,7 @@ ALTER TABLE `relationcontain_containbolt`
 --
 ALTER TABLE `relationprocess_processorder`
   ADD CONSTRAINT `relationProcess_processOrder_fk_order` FOREIGN KEY (`orderCode`) REFERENCES `customer_order` (`orderCode`) ON DELETE CASCADE,
-  ADD CONSTRAINT `relationProcess_processsOrder_fk_employee` FOREIGN KEY (`employeeCode`) REFERENCES `employee` (`employeeCode`) ON DELETE CASCADE;
+  ADD CONSTRAINT `relationProcess_processsOrder_fk_employee` FOREIGN KEY (`employeeCode`) REFERENCES `employee` (`employeeCode`);
 
 --
 -- Constraints for table `relationprovide_provideinformation`

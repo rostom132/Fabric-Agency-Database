@@ -46,6 +46,26 @@
             return $this->db_conn->insert_id;
         }
 
+        /**
+         * map the column name to special key for using 
+         *
+         * @return string key
+         */ 
+        function convertToKey($table, $column) {
+            if (isset(Config::getKeyMap()[$table][$column])) 
+                return Config::getKeyMap()[$table][$column];
+            return false;
+        }
+        
+        /**
+         * convert the key value into column name for using sql
+         *
+         * @return string key
+         */ 
+        function convertToColumnName($table, $key) {
+            return array_search ($key, Config::getKeyMap()[$table]);
+        }
+
         function __destruct(){
             $this->db_conn->close();
         }
