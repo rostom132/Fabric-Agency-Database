@@ -8,7 +8,12 @@
             );
             return $GLOBALS['db_conn']->convertToArray($result);
         }
-
+        static function getAllSuppliersDetail() {
+            $result = $GLOBALS['db_conn']->queryData(
+                "SELECT * from getSupplierInfos"
+            );
+            return $GLOBALS['db_conn']->convertToArray($result);
+        }
         static function getSupplierInfo($supplier_id) {
             $result = $GLOBALS['db_conn']->queryData(
                 "SELECT supplierName as name, taxCode as tax, address, bankAccount as bank  FROM supplier WHERE supplierCode = '$supplier_id'"

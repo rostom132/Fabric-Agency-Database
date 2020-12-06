@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.0.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 05, 2020 at 05:29 AM
--- Server version: 10.4.14-MariaDB
--- PHP Version: 7.4.10
+-- Generation Time: Dec 06, 2020 at 07:04 AM
+-- Server version: 10.4.16-MariaDB
+-- PHP Version: 7.4.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `db_ass2_test`
+-- Database: `fabric`
 --
 
 DELIMITER $$
@@ -137,18 +137,18 @@ CREATE TABLE `category` (
 --
 
 INSERT INTO `category` (`categoryCode`, `categoryName`, `color`, `quantity`, `r_supplierCode`) VALUES
-(1, 'Silk', 'blue', 4, 1),
-(2, 'Silk', 'green', 2, 1),
-(3, 'Silk', 'purple', 2, 1),
-(4, 'Cotton', 'blue', 2, 2),
-(5, 'Cotton', 'green', 2, 2),
-(6, 'Cotton', 'purple', 2, 2),
-(7, 'Leather', 'blue', 2, 3),
-(8, 'Leather', 'green', 2, 3),
-(9, 'Leather', 'purple', 2, 3),
-(10, 'Silk', 'cyan', 1, 1),
-(11, 'Leather', 'cyan', 0, 3),
-(12, 'Leather', 'grey', 0, 3);
+(1, 'Tasar Silk', 'blue', 4, 1),
+(2, 'Muga Silk', 'green', 2, 1),
+(3, 'Eri Silk', 'purple', 2, 1),
+(4, 'Pima Cotton', 'blue', 2, 2),
+(5, 'Upland Cotton', 'green', 2, 2),
+(6, 'Egyptian Cotton', 'purple', 2, 2),
+(7, 'Full Grain Leather', 'blue', 2, 3),
+(8, 'Corrected Grain Leather', 'green', 2, 3),
+(9, 'Bonded Leather', 'purple', 2, 3),
+(10, 'Mulberry Silk', 'cyan', 1, 1),
+(11, 'Faux Leather', 'cyan', 0, 3),
+(12, 'Suede Leather', 'grey', 0, 3);
 
 -- --------------------------------------------------------
 
@@ -167,19 +167,20 @@ CREATE TABLE `category_sellingprice` (
 --
 
 INSERT INTO `category_sellingprice` (`categoryCode`, `price`, `date`) VALUES
-(1, 1331, '2020-12-01'),
-(1, 1757, '2020-12-02'),
-(2, 1997, '2020-12-01'),
-(3, 2662, '2020-12-01'),
-(4, 2500, '2020-12-01'),
-(5, 3000, '2020-12-01'),
-(6, 3500, '2020-12-01'),
-(7, 4000, '2020-12-01'),
-(8, 4500, '2020-12-01'),
-(9, 5000, '2020-12-01'),
-(10, 5500, '2020-12-02'),
-(11, 6000, '2020-12-02'),
-(12, 6500, '2020-12-02');
+(1, 133, '2020-12-01'),
+(1, 175, '2020-12-02'),
+(1, 200, '2020-12-05'),
+(2, 199, '2020-12-01'),
+(3, 266, '2020-12-01'),
+(4, 250, '2020-12-01'),
+(5, 300, '2020-12-01'),
+(6, 350, '2020-12-01'),
+(7, 400, '2020-12-01'),
+(8, 450, '2020-12-01'),
+(9, 500, '2020-12-01'),
+(10, 550, '2020-12-02'),
+(11, 600, '2020-12-02'),
+(12, 650, '2020-12-02');
 
 -- --------------------------------------------------------
 
@@ -200,9 +201,9 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`customerCode`, `customerFirstName`, `customerLastName`, `address`, `arrearage`) VALUES
-(1, 'Thien', 'Nhan Ngoc', 'Bình Tân', 167850),
-(2, 'Tien', 'Tran Dinh', '110B Tân Phú', 20000),
-(3, 'Phuong', 'Pham Nhat', '11/7 Tân Bình', 30000);
+(1, 'Thien', 'Nhan Ngoc', '186/1 Bình Tân', 3620),
+(2, 'Tien', 'Tran Dinh', '110B Tân Phú', 0),
+(3, 'Phuong', 'Pham Nhat', '11/7 Tân Bình', 0);
 
 -- --------------------------------------------------------
 
@@ -221,9 +222,7 @@ CREATE TABLE `customer_order` (
 --
 
 INSERT INTO `customer_order` (`orderCode`, `totalPrice`, `r_customerCode`) VALUES
-(1, 97850, 1),
-(5, 45000, 2),
-(6, 162500, 3);
+(7, 5320, 1);
 
 --
 -- Triggers `customer_order`
@@ -250,6 +249,15 @@ CREATE TABLE `customer_partialpayment` (
   `date` date NOT NULL DEFAULT curdate(),
   `money` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `customer_partialpayment`
+--
+
+INSERT INTO `customer_partialpayment` (`customerCode`, `date`, `money`) VALUES
+(1, '2020-12-06', 200),
+(1, '2020-12-06', 500),
+(1, '2020-12-06', 1000);
 
 --
 -- Triggers `customer_partialpayment`
@@ -282,6 +290,16 @@ CREATE TABLE `customer_phonenumber` (
   `phoneNumber` varchar(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `customer_phonenumber`
+--
+
+INSERT INTO `customer_phonenumber` (`customerCode`, `phoneNumber`) VALUES
+(1, '0918853016'),
+(2, '0845426661'),
+(2, '0865123412'),
+(3, '0962764218');
+
 -- --------------------------------------------------------
 
 --
@@ -307,6 +325,35 @@ INSERT INTO `employee` (`employeeCode`, `employeeFirstName`, `employeeLastName`,
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `getalltransaction`
+-- (See below for the actual view)
+--
+CREATE TABLE `getalltransaction` (
+`categoryName` varchar(70)
+,`Date` date
+,`purchasePrice` int(6) unsigned
+,`Quantity` int(10)
+,`supplierName` varchar(70)
+,`supplierCode` int(10) unsigned
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `getsupplierinfos`
+-- (See below for the actual view)
+--
+CREATE TABLE `getsupplierinfos` (
+`supplierCode` int(10) unsigned
+,`address` varchar(70)
+,`bankAccount` varchar(22)
+,`taxCode` varchar(50)
+,`phoneNumber` mediumtext
+);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `relationcontain_containbolt`
 --
 
@@ -321,13 +368,7 @@ CREATE TABLE `relationcontain_containbolt` (
 --
 
 INSERT INTO `relationcontain_containbolt` (`categoryCode`, `boltCode`, `orderCode`) VALUES
-(1, 1, 1),
-(1, 2, 1),
-(1, 3, 1),
-(4, 1, 5),
-(4, 2, 5),
-(5, 1, 6),
-(10, 1, 6);
+(3, 2, 7);
 
 --
 -- Triggers `relationcontain_containbolt`
@@ -391,7 +432,7 @@ CREATE TABLE `relationprocess_processorder` (
 --
 
 INSERT INTO `relationprocess_processorder` (`orderCode`, `employeeCode`, `time`, `date`) VALUES
-(1, 1, '14:18:41', '2020-12-01');
+(7, 1, '12:33:23', '2020-12-06');
 
 -- --------------------------------------------------------
 
@@ -411,19 +452,19 @@ CREATE TABLE `relationprovide_provideinformation` (
 --
 
 INSERT INTO `relationprovide_provideinformation` (`categoryCode`, `purchasePrice`, `quantity`, `date`) VALUES
-(1, 500, 0, '2020-12-01'),
-(1, 7000, 0, '2020-12-05'),
-(2, 1000, 0, '2020-12-01'),
-(3, 1500, 0, '2020-12-01'),
-(4, 2000, 0, '2020-12-01'),
-(5, 2500, 0, '2020-12-01'),
-(6, 3000, 0, '2020-12-01'),
-(7, 3500, 0, '2020-12-01'),
-(8, 4000, 0, '2020-12-01'),
-(9, 4500, 0, '2020-12-01'),
-(10, 5000, 15, '2020-12-02'),
-(11, 5500, 0, '2020-12-02'),
-(12, 6000, 0, '2020-12-02');
+(1, 100, 0, '2020-12-01'),
+(1, 120, 0, '2020-12-05'),
+(2, 140, 0, '2020-12-01'),
+(3, 220, 0, '2020-12-01'),
+(4, 200, 0, '2020-12-01'),
+(5, 240, 0, '2020-12-01'),
+(6, 290, 0, '2020-12-01'),
+(7, 340, 0, '2020-12-01'),
+(8, 390, 0, '2020-12-01'),
+(9, 460, 0, '2020-12-01'),
+(10, 400, 15, '2020-12-02'),
+(11, 410, 0, '2020-12-02'),
+(12, 430, 0, '2020-12-02');
 
 -- --------------------------------------------------------
 
@@ -444,9 +485,9 @@ CREATE TABLE `supplier` (
 --
 
 INSERT INTO `supplier` (`supplierCode`, `supplierName`, `address`, `bankAccount`, `taxCode`) VALUES
-(1, 'Silk Agency', '17/10 Bình Tân', '123456789', '0123456'),
-(2, 'Cotton Agency', '330A Quận 11', '987654321', '101299'),
-(3, 'Leather Agency', '20/11/B Quận 10', '1011121314', '991210');
+(1, 'Silk Agency', '17/10 Bình Tân', '0953756463228754', '3600416862-002'),
+(2, 'Cotton Agency', '330A Quận 11', '0915077211241413', '2500557716'),
+(3, 'Leather Agency', '20/11/B Quận 10', '0743684285147217', '2500241938');
 
 -- --------------------------------------------------------
 
@@ -458,6 +499,33 @@ CREATE TABLE `supplier_phonenumber` (
   `supplierCode` int(10) UNSIGNED NOT NULL,
   `phoneNumber` varchar(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `supplier_phonenumber`
+--
+
+INSERT INTO `supplier_phonenumber` (`supplierCode`, `phoneNumber`) VALUES
+(1, '0865123412'),
+(2, '0853546345'),
+(3, '0977445765');
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `getalltransaction`
+--
+DROP TABLE IF EXISTS `getalltransaction`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getalltransaction`  AS SELECT `category`.`categoryName` AS `categoryName`, `relationprovide_provideinformation`.`date` AS `Date`, `relationprovide_provideinformation`.`purchasePrice` AS `purchasePrice`, `relationprovide_provideinformation`.`quantity` AS `Quantity`, `supplier`.`supplierName` AS `supplierName`, `supplier`.`supplierCode` AS `supplierCode` FROM ((`category` join `relationprovide_provideinformation`) join `supplier`) WHERE `category`.`categoryCode` = `relationprovide_provideinformation`.`categoryCode` AND `supplier`.`supplierCode` = `category`.`r_supplierCode` ORDER BY `relationprovide_provideinformation`.`date` DESC ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `getsupplierinfos`
+--
+DROP TABLE IF EXISTS `getsupplierinfos`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsupplierinfos`  AS SELECT `supplier`.`supplierCode` AS `supplierCode`, `supplier`.`address` AS `address`, `supplier`.`bankAccount` AS `bankAccount`, `supplier`.`taxCode` AS `taxCode`, group_concat(`supplier_phonenumber`.`phoneNumber` separator ', ') AS `phoneNumber` FROM (`supplier` left join `supplier_phonenumber` on(`supplier`.`supplierCode` = `supplier_phonenumber`.`supplierCode`)) GROUP BY `supplier`.`supplierCode` ;
 
 --
 -- Indexes for dumped tables
@@ -565,7 +633,7 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `customer_order`
 --
 ALTER TABLE `customer_order`
-  MODIFY `orderCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `orderCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `employee`
@@ -577,7 +645,7 @@ ALTER TABLE `employee`
 -- AUTO_INCREMENT for table `supplier`
 --
 ALTER TABLE `supplier`
-  MODIFY `supplierCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `supplierCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables
@@ -624,7 +692,7 @@ ALTER TABLE `customer_phonenumber`
 --
 ALTER TABLE `relationcontain_containbolt`
   ADD CONSTRAINT `relationContain_containBolt_fk_bolt` FOREIGN KEY (`categoryCode`,`boltCode`) REFERENCES `bolt` (`categoryCode`, `boltCode`) ON DELETE CASCADE,
-  ADD CONSTRAINT `relationContain_containBolt_fk_order` FOREIGN KEY (`orderCode`) REFERENCES `customer_order` (`orderCode`);
+  ADD CONSTRAINT `relationContain_containBolt_fk_order` FOREIGN KEY (`orderCode`) REFERENCES `customer_order` (`orderCode`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `relationprocess_processorder`
