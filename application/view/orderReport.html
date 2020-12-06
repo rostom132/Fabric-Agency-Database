@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabric Agency</title>
+    <link rel="stylesheet" href="./static/css/category.css">
+    <script type="module" src="./static/js/orderReport.js"></script>
+    <!-- CSS Library -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+</head>
+
+<body>
+    <div class="container shadow" style="padding: 3rem; margin-top: 10rem;background-color: #4BBADC;">
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="exampleDropdown">Customer Name</label>
+                    <select data-live-search="true" class="form-control selectpicker" id="supplier">
+						<option value="">- Filter By All Names -</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container shadow" style="padding: 3rem; margin-top: 2rem; background-color: #4BBADC;">
+        <div class="row">
+            <div class="col-12 containerCategory">
+                <h1>Fabric Agency Category</h1>
+                <br>
+                <table id="orderReport" class="style_table">
+                    <tr>
+                        <th style="width: 20%;">Order ID</th>
+                        <th style="width: 20%;">Total Price</th>
+                        <th style="width: 20%;">Customer ID</th>
+                        <th style="width: 20%;">Customer Name</th>
+                        <th style="width: 20%;"></th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+</body>
+
+<script src="./static/js/category.js "></script>
+
+</html>

@@ -23,6 +23,17 @@
     width: inherit;
 }
 
+#orderReport {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+#orderReport th,
+td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
 .tooltip {
     position: relative;
     opacity: 1;

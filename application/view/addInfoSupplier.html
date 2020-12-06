@@ -4,50 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="addInfoSupplier.css">
-    <script type="module" src="addInfoSupplier.js"></script>
+    <title>Insert new supplier</title>
+    <link rel="stylesheet" href="./static/css/addInfoSupplier.css">
+    <script type="module" src="./static/js/addInfoSupplier.js"></script>
 </head>
 
 <body>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <h1 style="text-align: center;">Add Supplier Information</h1>
-    <div class="row">
-        <div class="col-md-3 col-ms-3"></div>
-        <div class="col-md-6 col-ms-6">
-            <div class="row container_addInfo ">
-                <div class="col-md-6 col-ms-6">
-                    <div class="group-row">
-                        <input placeholder="Name">
-                    </div class="group-row">
-                    <div class="group-row"><input placeholder="Address"></div>
-                    <div class="group-row"><input placeholder="Tax Code"></div>
-                    <div class="group-row"> <input placeholder="Bank Account"></div>
-                </div>
-                <div class="col-md-6 col-ms-6">
-                    <div class="group-row">
-                        <div id="registerClass-schedule_container">
+    <div class="row addInfo">
+        <div class="container addInfo__form">
+            <div class="row group-row">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <div class="group-row"><input class="input_field" placeholder="Name"></div>
+                            <div class="group-row"><input class="input_field" placeholder="Address"></div>
+                            <div class="group-row"><input class="input_field" placeholder="Tax Code"></div>
+                            <div class="group-row"><input class="input_field" placeholder="Bank Account"></div>
                         </div>
-                        <button id="schedule_add_btn" class="schedule_add_btn"> <span class="lang schedule_add_label">Add New Phone Number</span><i class="fa fa-plus schedule_add_icon" aria-hidden="true"></i></button>
+                        <div class="col-6 text-center">
+                            <div class="group-row">
+                                <div id="registerSupplier-schedule_container">
+                                </div>
+                                <button id="schedule_add_btn" class="schedule_add_btn"> <span class="lang schedule_add_label">Add New Phone Number</span><i class="fa fa-plus schedule_add_icon" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-        </div>
-
-        <div class="col-md-3 col-ms-3"></div>
-    </div>
-
-
-    <div class="group-row">
-        <div class="col text-center">
-            <button type="submit" id="registerClass-submit-btn" class="registerClass-submit-btn lang">OK
-            </button>
+            <div class="row group-row">
+                <div class="col text-center">
+                    <button type="submit" id="registerSupplier-submit-btn" class="registerSupplier-submit-btn lang">OK
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </body>
