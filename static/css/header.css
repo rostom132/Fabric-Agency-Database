@@ -68,7 +68,7 @@
 }
 
 .navbar-wrapper {
-    position: absolute;
+    /*position: absolute;*/ /*Modify Here */
     top: 0;
     margin: 0;
     width: 100%;

@@ -11,5 +11,6 @@
     // include "../view/transaction.html";
     // include "../view/category.html";
     // include "addInfoSupplier.html";
+    include "../view/login.html";
 
 ?>

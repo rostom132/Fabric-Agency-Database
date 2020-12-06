@@ -1,0 +1,61 @@
+#coverLogin, #coverLogin * {
+  padding: 0px;
+  border: 0px;
+  margin: 0px;
+  box-sizing: border-box;
+}
+
+#Login_Content {
+  background-image: linear-gradient(to right, rgba(75,186,220,0.2),                               
+                                              rgba(75,186,220,0.6),  
+                                              rgba(75,186,220,1));
+  height: 849px;
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+}
+
+#LoginForm {
+  background-color: rgba(0, 0, 0, 0.35);
+  padding: 25px;
+  border-radius: 15px;
+
+}
+
+#LoginForm > p {
+  color: white;
+  text-align: center;
+  font-size: x-large;
+  font-weight: bold;
+}
+
+.Login_userName_passWord > div {
+  color: white;
+  font-size: large;
+  font-weight: bold;
+}
+
+#LoginForm .Login_userName_passWord > input {
+  width: 285px;
+  padding: 10px;
+}
+
+#LoginForm > .Login_userName_passWord {
+  padding: 15px;
+}
+
+#Login_Btn_Submit {
+  color: white;
+  font-size: large;
+  font-weight: bold;
+  background-color: rgb(75,186,220);
+  padding: 10px;
+  padding-left: 25px;
+  padding-right: 25px;
+  border-radius: 25px;
+}
+
+#Login_Btn_Submit_div {
+  text-align: center;
+  padding: 15px;
+}
