@@ -1,6 +1,6 @@
 function addSelectOptions(selectValues) {
-    $.each(selectValues, function (key, value) {
-        $('#supplier').append(new Option(value['Name'], value['ID'],));
+    $.each(selectValues, function(key, value) {
+        $('#supplier').append(new Option(value['Name'], value['ID'], ));
     });
     $('#supplier').val('default').selectpicker('deselectAll');
     $('#supplier').selectpicker('refresh');
@@ -85,7 +85,7 @@ function generateBodySupplierTable(data) {
             row += "<tr>";
             row += "<td>" + phoneNumber['phoneNumber'] + "</td>";
             row += "</tr>";
-        }  
+        }
     }
     row += "<tr>";
     row += "<td>Tax Code</td>";
@@ -113,13 +113,12 @@ function generatateSupplierTable(data) {
     tablePosition.appendChild(tbl);
 }
 
-$('#supplier').on('change', function () {
+$('#supplier').on('change', function() {
     var supplierId = $(this).val();
     $.ajax({
         type: "GET",
         url: "application/controller/category.php?get_categories=" + supplierId,
-        success: function (data) {
-            console.log(data);
+        success: function(data) {
             var response = JSON.parse(data);
             generatateSupplierTable(response['supplier']);
             generateCategoryTable(response['category']);
@@ -127,11 +126,11 @@ $('#supplier').on('change', function () {
     });
 });
 
-$(document).ready(function () {
+$(document).ready(function() {
     $.ajax({
         type: "GET",
         url: "application/controller/category.php?get_suppliers=true",
-        success: function (data) {
+        success: function(data) {
             addSelectOptions(JSON.parse(data));
         }
     });
