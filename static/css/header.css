@@ -329,3 +329,8 @@
     opacity: 1;
     visibility: visible;
 }
+#logout:focus {outline:0; border: none; background: transparent;}
+#logout {
+    border: none;
+    background: transparent;
+}
