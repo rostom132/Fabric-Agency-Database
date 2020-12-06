@@ -11,7 +11,6 @@ $(document).ready(function() {
         data: { catFilter: true, supFilter: true },
         success: function(responseText) {
             var obj = JSON.parse(responseText);
-            console.log(obj);
             obj["category"].forEach(i => {
                 var opt = document.createElement('option');
                 opt.value = i["id"];
@@ -74,7 +73,6 @@ function filterTransaction(start, end, category, supplier) {
             context: document.body,
             data: { filterVal: filter },
             success: function(responseText) {
-                console.log(responseText);
                 var obj = JSON.parse(responseText);
                 if (obj == 0) {
                     alert("Khong co");
@@ -110,7 +108,6 @@ function getAllTransaction() {
         context: document.body,
         data: { getAll: true },
         success: function(responseText) {
-            console.log(responseText);
             var obj = JSON.parse(responseText);
             let transactionList = [];
             obj["transaction"].map((item, i) => {
@@ -120,6 +117,7 @@ function getAllTransaction() {
                         transactionList.push(temp);
                     }
                 }
+
             });
             renderTransaction(transactionList);
         },

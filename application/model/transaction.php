@@ -8,6 +8,7 @@
             );
             return $GLOBALS['db_conn']->convertToArray($result);
         }
+
         static function getFilterTransaction($input_array) {
             $sql = "SELECT category.categoryName, relationprovide_provideinformation.date as Date, relationprovide_provideinformation.purchasePrice, relationprovide_provideinformation.quantity as Quantity, supplier.supplierName, supplier.supplierCode FROM category, relationprovide_provideinformation, supplier WHERE category.categoryCode = relationprovide_provideinformation.categoryCode AND category.r_supplierCode = supplier.supplierCode ";
             foreach ($input_array AS $col=>$val) {
@@ -25,16 +26,13 @@
                     $sql .= "supplier.supplierCode = '$val'";
                 }
             }
+            
             $sql.= " ORDER BY relationprovide_provideinformation.date DESC";
             $result = $GLOBALS['db_conn']->queryData(
                 $sql
             );
-            if($result->num_rows != 0) {
-                return $GLOBALS['db_conn']->convertToArray($result);
-            }
-            else {
-                return 0;
-            }
+
+            return $GLOBALS['db_conn']->convertToArray($result);
         }
     }
 ?>

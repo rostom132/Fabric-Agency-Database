@@ -10,7 +10,7 @@
         }
         static function getAllSuppliersDetail() {
             $result = $GLOBALS['db_conn']->queryData(
-                "SELECT * from getSupplierInfors"
+                "SELECT * from getSupplierInfos"
             );
             return $GLOBALS['db_conn']->convertToArray($result);
         }
