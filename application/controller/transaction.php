@@ -1,4 +1,5 @@
 <?php
+    session_start();
     include_once "../model/supplier.php";
     include_once "../model/category.php";
     include_once "../model/transaction.php";

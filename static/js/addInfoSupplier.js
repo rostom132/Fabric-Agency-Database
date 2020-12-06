@@ -49,7 +49,6 @@ $("#registerSupplier-schedule_container").on("click", ".delete_icon", function()
 
 $("#registerSupplier-submit-btn").on("click", function supply() {
     var inputInfoSupplier = getDataOfSupplier();
-    console.log(inputInfoSupplier);
     $.ajax({
         type: "POST",
         url: "application/controller/addInfoSupplier.php",
