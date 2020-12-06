@@ -124,6 +124,10 @@
     display: block;
 }
 
+.navbar-wrapper ul li:hover>a {
+    color: #4BBADC !important;
+}
+
 @keyframes leftToRight {
     0% {
         width: 0;

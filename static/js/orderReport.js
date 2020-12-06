@@ -4,10 +4,10 @@ const getOrderByName_url = "application/controller/orderReport.php";
 
 function addSelectOptions(selectValues) {
     $.each(selectValues, function(key, value) {
-        $('#supplier').append(new Option(value['Name'], value['Name'], ));
+        $('#order').append(new Option(value['Name'], value['Name'], ));
     });
-    $('#supplier').selectpicker("val", "");
-    $('#supplier').selectpicker('refresh');
+    $('#order').selectpicker("val", "");
+    $('#order').selectpicker('refresh');
 }
 
 function renderRecord(dataObj) {
@@ -21,7 +21,7 @@ function renderRecord(dataObj) {
 				<td>${value.totalPrice}</td>
 				<td id="${value.customerCode}">${value.customerCode}</td>
 				<td>${value.Name}</td>
-				<td><a href="addInfoSupplier" target="_blank">View details</a></td>
+				<td><a href="orderDetail?order=${value.orderCode}&customer=${value.customerCode}" target="_blank">View details</a></td>
 				</tr>
 			`
         ).appendTo(table);
@@ -66,7 +66,7 @@ function getOrderByName(customerName) {
 }
 
 function applyFilter() {
-    $("#supplier").change(function() {
+    $("#order").change(function() {
         var filter_name = $(this).val();
         if (filter_name !== "") {
             getOrderByName(filter_name);
