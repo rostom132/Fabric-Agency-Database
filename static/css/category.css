@@ -1,22 +1,15 @@
 .row {
-    margin-left: -5px;
-    margin-right: -5px;
+    margin-left: 0px;
+    margin-right: 0px;
 }
 
-.containerCategory {
-    text-align: center;
+.fix_padd {
+    padding-left: 0;
+    padding-right: 0;
 }
 
-.btnRegister {
-    margin-top: 10%;
-    border: none;
-    border-radius: 1.5rem;
-    padding: 2%;
-    background: #4BBADC;
-    color: #fff;
-    font-weight: 600;
-    width: 100%;
-    cursor: pointer;
+.fix_border {
+    border: solid 1px black;
 }
 
 .style_table {
@@ -39,42 +32,19 @@ td {
     opacity: 1;
     z-index: unset;
     display: table-cell !important;
+}
+
+.containerCategory {
     text-align: center;
 }
 
-.tooltip .tooltiptext {
-    visibility: hidden;
-    /* width: 200px; */
-    background-color: darkcyan;
-    color: #fff;
-    /* text-align: center; */
-    border-radius: 6px;
-    padding: 5px 0;
-    /* Position the tooltip */
-    position: absolute;
-    z-index: 1;
-    bottom: 100%;
-    left: 0%;
+.style_table {
+    width: inherit;
 }
 
-.tooltip:hover {
-    background-color: orange;
-}
-
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-}
-
-.tooltiptext:hover {
-    display: none;
-}
-
-.Supplier_InfoPopup {
-    width: max-content;
-    padding: 10px;
-    text-align: initial;
-}
-
-.phone-numbers div {
-    padding-left: 20px;
+.category_head {
+    border: solid 1px black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

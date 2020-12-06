@@ -2,13 +2,11 @@
 <html lang="en">
 
 <head>
-    <base href="http://127.0.0.1/Fabric-Agency-Database/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 
     <link rel="stylesheet" href="./static/css/transaction.css">
-    <script type="module" src="./static/js/transaction.js"></script>
     <!-- CSS Library -->
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
@@ -17,9 +15,30 @@
 <body>
     <div class="container shadow" style="padding: 3rem; margin-top: 10rem;background-color: #4BBADC;">
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-4">
                 <div class="form-group">
-                    <label for="exampleDropdown">#1 # Dropdown Select with "data-live-search" </label>
+
+                    <div class="row">
+
+                        <div class="col-lg-12">Start Date
+                            <div class="form-group form-distance ">
+                                <input id="edit_birth" type="date" class="form-control" value="" min="1900-01-01" max="2020-12-31" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12">End Date
+                            <div class="form-group form-distance ">
+                                <input id="edit_birth" type="date" class="form-control" value="" min="1900-01-01" max="2020-12-31" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label for="exampleDropdown" style="padding-bottom: 8px;">#2 # Dropdown Select with "data-live-search" </label>
                     <select data-live-search="true" class="form-control selectpicker">
                         <option>Mango</option>
                         <option>Orange</option>
@@ -30,6 +49,14 @@
                         <option>Grapes</option>
                         <option>Water Melon</option>
                         <option>Mango</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label for="exampleDropdown" style="padding-bottom: 8px;">#3 # Dropdown Select with "data-live-search" </label>
+                    <select data-live-search="true" class="form-control selectpicker">
+                        <option>Mango</option>
                         <option>Orange</option>
                         <option>Lychee</option>
                         <option>Pineapple</option>
@@ -38,105 +65,74 @@
                         <option>Grapes</option>
                         <option>Water Melon</option>
                         <option>Mango</option>
-                        <option>Orange</option>
-                        <option>Lychee</option>
-                        <option>Pineapple</option>
-                        <option>Apple</option>
                     </select>
                 </div>
             </div>
 
         </div>
     </div>
-    <div class="container shadow" style="padding: 3rem; margin-top: 2rem;background-color: #4BBADC;">
+    <div class="container shadow" style="padding: 3rem; margin-top: 2rem; background-color: #4BBADC;">
         <div class="row">
             <div class="col-lg-12 containerCategory">
                 <h1>Fabric Agency Category</h1>
+                <br>
                 <table class="style_table" border="1">
                     <tr>
-                        <th style="width: 20%;" rowspan="5">SUPLIER</th>
-                        <th style="width: 20%;">Name</th>
-                        <td>ABCr</th>
+                        <th style="width: 20%;">Category name</th>
+                        <th style="width: 20%;">Date</th>
+                        <th style="width: 20%;">Purchase Price</th>
+                        <th style="width: 20%;">Quanity</th>
+                        <th style="width: 20%;">Supplier</th>
                     </tr>
                     <tr>
-                        <th style="width: 20%;">Phone Number</td>
-                            <td>0917565059</td>
+                        <td>A</td>
+                        <td>B</td>
+                        <td>C</td>
+                        <td>D</td>
+                        <td class="tooltip">
+                            E
+                            <div class="tooltiptext">
+                                <div class="Supplier_InfoPopup">
+                                    <div>Name: Exawxaws</div>
+                                    <div>Address: Aashxhaklwxixjax</div>
+                                    <div>Tax Code: A123123123</div>
+                                    <div>Bank Account: ABCDSX</div>
+                                    <div>Phone: 0101923901283</div>
+                                </div>
+                            </div>
+                        </td>
+
                     </tr>
                     <tr>
-                        <th style="width: 20%;">Tax Code</td>
-                            <td>0917565059</td>
-                    </tr>
-                    <tr>
-                        <th style="width: 20%;">Address</td>
-                            <td>0917565059</td>
-                    </tr>
-                    <tr>
-                        <th style="width: 20%;">Bank Account</td>
-                            <td>0917565059</td>
+                        <td id="Cate_name">A</td>
+                        <td id="Date">B</td>
+                        <td id="Purchase_price">C</td>
+                        <td id="Quanity">D</td>
+                        <td id="Supplier" class="tooltip">
+                            K
+                            <div class="tooltiptext">
+                                <div class="Supplier_InfoPopup">
+                                    <div id="Supplier_name">Name: Exawxaws</div>
+                                    <div id="Supplier_address">Address: Aashxhaklwxixjax</div>
+                                    <div id="Tax_code">Tax Code: A123123123</div>
+                                    <div id="Bank_account">Bank Account: ABCDSX</div>
+                                    <div>Phone:
+                                        <div>
+                                            <div id="Phone">091756505</div>
+                                            <div>0917565059</div>
+                                            <div>0917565059</div>
+                                            <div>0917565059</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
                     </tr>
                 </table>
-                <br>
             </div>
         </div>
-        <section style="text-align: center;">
-            <div class="row">
-                <div class="col-md-2 fix_padd" style="border: solid 1px black; display: flex;align-items: center; justify-content: center;">Category Name</div>
-                <div class="col-md-2 fix_padd" style="border: solid 1px black ; display: flex;align-items: center; justify-content: center;">Category Color</div>
-                <div class="col-md-2 fix_padd" style="border: solid 1px black ; display: flex;align-items: center; justify-content: center;">Category Quantity</div>
-                <div class="col-md-6 fix_padd" style="border: solid 1px black">Selling Price
-                    <div class="row">
-                        <div class="col-md-6 fix_padd" style="border-right: solid 1px black;border-top: solid 1px black">Date</div>
-                        <div class="col-md-6 fix_padd" style="border-top: solid 1px black">Price</div>
-                    </div>
-                </div>
-            </div>
-            <!-- bắt đầu tạo mới-->
-            <div class="row">
-                <div class="col-md-2 fix_padd fix_border" style="display: flex;align-items: center; justify-content: center;">A</div>
-                <div class="col-md-2 fix_padd fix_border" style=" display: flex;align-items: center; justify-content: center;">B</div>
-                <div class="col-md-2 fix_padd fix_border" style="display: flex;align-items: center; justify-content: center;">C</div>
-                <div class="col-md-6 fix_padd">
-                    <!-- tạo mới cùng loại -->
-                    <div class="row">
-                        <div class="col-md-6 fix_padd fix_border">A</div>
-                        <div class="col-md-6 fix_padd fix_border">B</div>
-                    </div>
-                    <!-- kết thúc tạo mới cùng loại -->
-                    <!-- ví dụ -->
-                    <div class="row">
-                        <div class="col-md-6 fix_padd fix_border">A</div>
-                        <div class="col-md-6 fix_padd fix_border">B</div>
-                    </div>
-                    <!-- kết thúc ví dụ -->
-                </div>
-            </div>
-            <!-- Kết thúc tạo mới -->
-            <!-- ví dụ -->
-            <div class="row">
-                <div class="col-md-2 fix_padd fix_border" style="display: flex;align-items: center; justify-content: center;">A</div>
-                <div class="col-md-2 fix_padd fix_border" style=" display: flex;align-items: center; justify-content: center;">B</div>
-                <div class="col-md-2 fix_padd fix_border" style="display: flex;align-items: center; justify-content: center;">C</div>
-                <div class="col-md-6 fix_padd">
-                    <div class="row">
-                        <div class="col-md-6 fix_padd fix_border">A</div>
-                        <div class="col-md-6 fix_padd fix_border">B</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 fix_padd fix_border">A</div>
-                        <div class="col-md-6 fix_padd fix_border">B</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 fix_padd fix_border">A</div>
-                        <div class="col-md-6 fix_padd fix_border">B</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 fix_padd fix_border">A</div>
-                        <div class="col-md-6 fix_padd fix_border">B</div>
-                    </div>
-                </div>
-            </div>
-
-        </section>
 </body>
 
 </html>
