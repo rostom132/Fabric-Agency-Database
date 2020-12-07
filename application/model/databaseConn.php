@@ -66,6 +66,11 @@
             return array_search ($key, Config::getKeyMap()[$table]);
         }
 
+        function freeResult($result) {
+            mysqli_free_result($result);
+            mysqli_next_result($this->db_conn);
+        }
+
         function __destruct(){
             $this->db_conn->close();
         }
