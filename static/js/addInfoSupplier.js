@@ -43,12 +43,7 @@ function getDataOfSupplier() {
     return data;
 }
 
-$("#registerSupplier-schedule_container").on("click", ".delete_icon", function() { <<
-    << << < HEAD
-    var $current_id = $(this).attr("id").split("_")[3];
-    console.log($current_id + " " + typeof $current_id);
-    $(this).parent().remove(); ===
-    === =
+$("#registerSupplier-schedule_container").on("click", ".delete_icon", function() { 
     $(this).parent().remove();
 })
 
@@ -61,6 +56,5 @@ $("#registerSupplier-submit-btn").on("click", function supply() {
         success: function(data) {
             alert(data);
         }
-    }); >>>
-    >>> > 02 abca12b6f31322f57280ab847622ff6c5aae2f
+    });
 })
