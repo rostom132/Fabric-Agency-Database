@@ -4,7 +4,7 @@
     class Supplier {
         static function getNamesAllSuppliers() {
             $result = $GLOBALS['db_conn']->queryData(
-                "SELECT supplierCode as ID, supplierName as Name FROM `supplier` ORDER BY `supplierName` ASC"
+                "SELECT * FROM getSuppliersName"
             );
             return $GLOBALS['db_conn']->convertToArray($result);
         }
