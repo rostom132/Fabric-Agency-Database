@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.0.3
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 06, 2020 at 04:52 PM
+-- Generation Time: Dec 07, 2020 at 07:15 PM
 -- Server version: 10.4.14-MariaDB
--- PHP Version: 7.4.10
+-- PHP Version: 7.3.23
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -60,6 +60,59 @@ SELECT SUM(purchasePrice) into totalPurchasePrice
 FROM relationprovide_provideinformation as r_provideInformation, category 
 WHERE r_provideInformation.categoryCode = category.categoryCode AND category.r_supplierCode = input_supplierCode;
 RETURN totalPurchasePrice;
+END$$
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `getPurchaseInfo` (`supplier_code` CHAR(20)) RETURNS LONGTEXT CHARSET utf8mb4 BEGIN
+    DECLARE purchase JSON;
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE code int(10);
+    DECLARE name varchar(70);
+    DECLARE color varchar(20);
+    DECLARE quantity int(10);
+    DECLARE date_purchase date;
+    DECLARE price int(20);
+    DECLARE index_detail int(10);
+    DECLARE total_price int(30);
+    DECLARE category_info
+        CURSOR FOR SELECT `categoryCode`, `color`, `categoryName`
+            FROM category WHERE `r_supplierCode` = supplier_code;
+    DECLARE category_purchase
+        CURSOR FOR SELECT `quantity`, `date`, `purchasePrice` 
+	        FROM relationprovide_provideinformation WHERE `categoryCode` = code;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+	SET purchase = '{"categories_detail": [],"total_price": ""}';
+    SET index_detail = -1;
+    SET total_price = 0;
+
+
+    OPEN category_info;
+
+    info_loop: LOOP
+        FETCH category_info INTO code, color, name;
+        IF done THEN
+            LEAVE info_loop;
+            CLOSE category_info;
+        END IF;
+        SELECT JSON_ARRAY_APPEND(purchase, '$.categories_detail', JSON_OBJECT("color", color, "name", name, "purchase_detail", JSON_ARRAY())) INTO purchase;
+        SET index_detail = index_detail + 1;
+
+        OPEN category_purchase;
+        purchase_loop: LOOP
+            FETCH category_purchase INTO quantity, date_purchase, price;
+            IF done THEN
+                SET done = FALSE;
+                CLOSE category_purchase;
+                LEAVE purchase_loop;
+            END IF;
+            SET total_price = total_price + price;
+            SELECT JSON_ARRAY_APPEND(purchase, CONCAT('$.categories_detail[',index_detail,'].purchase_detail'), JSON_OBJECT("quantity", quantity, "date_purchase", date_purchase, "price", price)) INTO purchase;
+        END LOOP purchase_loop;  
+    END LOOP info_loop;
+    
+    SELECT JSON_REPLACE(purchase, "$.total_price", total_price) INTO purchase;
+
+    RETURN purchase;
 END$$
 
 CREATE DEFINER=`root`@`localhost` FUNCTION `get_length` (`new_categoryCode` INT(10), `new_boltCode` INT(10)) RETURNS INT(11) BEGIN
@@ -555,7 +608,7 @@ INSERT INTO `supplier_phonenumber` (`supplierCode`, `phoneNumber`) VALUES
 --
 DROP TABLE IF EXISTS `getallorders`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallorders`  AS  select `customer_order`.`orderCode` AS `orderCode`,`customer_order`.`totalPrice` AS `totalPrice`,`customer`.`customerCode` AS `customerCode`,concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` from (`customer_order` join `customer`) where `customer_order`.`r_customerCode` = `customer`.`customerCode` order by `customer_order`.`orderCode` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallorders`  AS SELECT `customer_order`.`orderCode` AS `orderCode`, `customer_order`.`totalPrice` AS `totalPrice`, `customer`.`customerCode` AS `customerCode`, concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` FROM (`customer_order` join `customer`) WHERE `customer_order`.`r_customerCode` = `customer`.`customerCode` ORDER BY `customer_order`.`orderCode` ASC ;
 
 -- --------------------------------------------------------
 
@@ -564,7 +617,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getalltransaction`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getalltransaction`  AS  select `category`.`categoryName` AS `categoryName`,`relationprovide_provideinformation`.`date` AS `Date`,`relationprovide_provideinformation`.`purchasePrice` AS `purchasePrice`,`relationprovide_provideinformation`.`quantity` AS `Quantity`,`supplier`.`supplierName` AS `supplierName`,`supplier`.`supplierCode` AS `supplierCode` from ((`category` join `relationprovide_provideinformation`) join `supplier`) where `category`.`categoryCode` = `relationprovide_provideinformation`.`categoryCode` and `supplier`.`supplierCode` = `category`.`r_supplierCode` order by `relationprovide_provideinformation`.`date` desc ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getalltransaction`  AS SELECT `category`.`categoryName` AS `categoryName`, `relationprovide_provideinformation`.`date` AS `Date`, `relationprovide_provideinformation`.`purchasePrice` AS `purchasePrice`, `relationprovide_provideinformation`.`quantity` AS `Quantity`, `supplier`.`supplierName` AS `supplierName`, `supplier`.`supplierCode` AS `supplierCode` FROM ((`category` join `relationprovide_provideinformation`) join `supplier`) WHERE `category`.`categoryCode` = `relationprovide_provideinformation`.`categoryCode` AND `supplier`.`supplierCode` = `category`.`r_supplierCode` ORDER BY `relationprovide_provideinformation`.`date` DESC ;
 
 -- --------------------------------------------------------
 
@@ -573,7 +626,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getcustomersname`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getcustomersname`  AS  select distinct concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` from `customer` order by `customer`.`customerFirstName` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getcustomersname`  AS SELECT DISTINCT concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` FROM `customer` ORDER BY `customer`.`customerFirstName` ASC ;
 
 -- --------------------------------------------------------
 
@@ -582,7 +635,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getsupplierinfos`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsupplierinfos`  AS  select `supplier`.`supplierCode` AS `supplierCode`,`supplier`.`address` AS `address`,`supplier`.`bankAccount` AS `bankAccount`,`supplier`.`taxCode` AS `taxCode`,group_concat(`supplier_phonenumber`.`phoneNumber` separator ', ') AS `phoneNumber` from (`supplier` left join `supplier_phonenumber` on(`supplier`.`supplierCode` = `supplier_phonenumber`.`supplierCode`)) group by `supplier`.`supplierCode` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsupplierinfos`  AS SELECT `supplier`.`supplierCode` AS `supplierCode`, `supplier`.`address` AS `address`, `supplier`.`bankAccount` AS `bankAccount`, `supplier`.`taxCode` AS `taxCode`, group_concat(`supplier_phonenumber`.`phoneNumber` separator ', ') AS `phoneNumber` FROM (`supplier` left join `supplier_phonenumber` on(`supplier`.`supplierCode` = `supplier_phonenumber`.`supplierCode`)) GROUP BY `supplier`.`supplierCode` ;
 
 --
 -- Indexes for dumped tables
