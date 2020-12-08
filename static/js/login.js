@@ -8,13 +8,12 @@ $("#Login_Btn_Submit").click(function() {
         context: document.body,
         data: { username: user, password: pass },
         success: function(responseText) {
-            if(responseText == "Wrong") {
+            if (responseText == "Wrong") {
                 alert("Wrong password");
-            }
-            else {
-                window.location.replace(window.location.origin + window.location.pathname + '/transaction');
+            } else {
+                window.location.replace(window.location.origin + window.location.pathname + 'transaction');
             }
         },
         async: true
-        })
+    })
 });
