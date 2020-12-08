@@ -4,7 +4,7 @@
     class Supplier {
         static function getNamesAllSuppliers() {
             $result = $GLOBALS['db_conn']->queryData(
-                "SELECT supplierCode as ID, supplierName as Name FROM `supplier` ORDER BY `supplierName` ASC"
+                "SELECT * FROM getSuppliersName"
             );
             return $GLOBALS['db_conn']->convertToArray($result);
         }
@@ -16,16 +16,20 @@
         }
         static function getSupplierInfo($supplier_id) {
             $result = $GLOBALS['db_conn']->queryData(
-                "SELECT supplierName as name, taxCode as tax, address, bankAccount as bank  FROM supplier WHERE supplierCode = '$supplier_id'"
+                "call getSupplierInfo('$supplier_id');"
             );
-            return $GLOBALS['db_conn']->convertToArray($result)[0];
+            $result_arr = $GLOBALS['db_conn']->convertToArray($result)[0];
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
         }
 
         static function getSupplierPhoneNumbers($supplier_id) {
             $result = $GLOBALS['db_conn']->queryData(
-                "SELECT `phoneNumber` FROM supplier_phonenumber WHERE supplierCode = '$supplier_id'"
+                "call getSupplierPhoneNumber('$supplier_id');"
             );
-            return $GLOBALS['db_conn']->convertToArray($result);
+            $result_arr = $GLOBALS['db_conn']->convertToArray($result);
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
         }
 
         /**

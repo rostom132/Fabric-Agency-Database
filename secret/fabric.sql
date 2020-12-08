@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.3
+-- version 5.0.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 07, 2020 at 07:15 PM
+-- Generation Time: Dec 08, 2020 at 04:38 AM
 -- Server version: 10.4.14-MariaDB
--- PHP Version: 7.3.23
+-- PHP Version: 7.4.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -25,6 +25,8 @@ DELIMITER $$
 --
 -- Procedures
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getCategoriesBySupplier` (IN `input_supplierId` INT(10))  SELECT categoryCode as code,categoryName as name,color,quantity FROM category WHERE r_supplierCode = input_supplierId$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getCustomerPhone` (IN `input_customerCode` INT(10))  SELECT customer_phonenumber.phoneNumber
 FROM customer, customer_phonenumber
 WHERE customer.customerCode = input_customerCode AND customer.customerCode = customer_phonenumber.customerCode$$
@@ -40,6 +42,14 @@ WHERE customer_order.orderCode = input_orderCode AND customer.customerCode = cus
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getOrderList` (IN `input_orderCode` INT(10))  SELECT category.categoryCode, category.categoryName, color, bolt.boltCode, length
 FROM customer_order, relationcontain_containbolt, bolt, category
 WHERE customer_order.orderCode = input_orderCode AND customer_order.orderCode = relationcontain_containbolt.orderCode AND relationcontain_containbolt.categoryCode = bolt.categoryCode AND relationcontain_containbolt.boltCode = bolt.boltCode AND bolt.categoryCode = category.categoryCode$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getSellingPrice` (IN `input_supplierId` INT(10))  SELECT categoryCode as code, price, date FROM category_sellingprice 
+  NATURAL JOIN category
+  WHERE category.r_supplierCode = input_supplierId$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getSupplierInfo` (IN `input_supplierId` INT(10))  SELECT supplierName as name, taxCode as tax, address, bankAccount as bank  FROM supplier WHERE supplierCode = input_supplierId$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getSupplierPhoneNumber` (IN `input_supplierId` INT(10))  SELECT phoneNumber FROM supplier_phonenumber WHERE supplierCode = input_supplierId$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sortSuppliers` (IN `startDate` DATE, IN `endDate` DATE)  BEGIN
   SELECT supplier.supplierName, count(*) number_of_categories
@@ -74,11 +84,11 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `getPurchaseInfo` (`supplier_code` CH
     DECLARE index_detail int(10);
     DECLARE total_price int(30);
     DECLARE category_info
-        CURSOR FOR SELECT `categoryCode`, `color`, `categoryName`
-            FROM category WHERE `r_supplierCode` = supplier_code;
+        CURSOR FOR SELECT category.categoryCode, category.color, category.categoryName
+            FROM category WHERE r_supplierCode = supplier_code;
     DECLARE category_purchase
-        CURSOR FOR SELECT `quantity`, `date`, `purchasePrice` 
-	        FROM relationprovide_provideinformation WHERE `categoryCode` = code;
+        CURSOR FOR SELECT relationprovide_provideinformation.quantity, relationprovide_provideinformation.date, relationprovide_provideinformation.purchasePrice 
+	        FROM relationprovide_provideinformation WHERE categoryCode = code;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 	SET purchase = '{"categories_detail": [],"total_price": ""}';
@@ -394,6 +404,17 @@ INSERT INTO `employee` (`employeeCode`, `employeeFirstName`, `employeeLastName`,
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `getallcategories`
+-- (See below for the actual view)
+--
+CREATE TABLE `getallcategories` (
+`category` varchar(70)
+,`id` int(10) unsigned
+);
+
+-- --------------------------------------------------------
+
+--
 -- Stand-in structure for view `getallorders`
 -- (See below for the actual view)
 --
@@ -441,6 +462,17 @@ CREATE TABLE `getsupplierinfos` (
 ,`bankAccount` varchar(22)
 ,`taxCode` varchar(50)
 ,`phoneNumber` mediumtext
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `getsuppliersname`
+-- (See below for the actual view)
+--
+CREATE TABLE `getsuppliersname` (
+`ID` int(10) unsigned
+,`Name` varchar(70)
 );
 
 -- --------------------------------------------------------
@@ -598,8 +630,19 @@ CREATE TABLE `supplier_phonenumber` (
 
 INSERT INTO `supplier_phonenumber` (`supplierCode`, `phoneNumber`) VALUES
 (1, '0865123412'),
+(1, '08969935447'),
+(1, '0969935447'),
 (2, '0853546345'),
 (3, '0977445765');
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `getallcategories`
+--
+DROP TABLE IF EXISTS `getallcategories`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallcategories`  AS  select distinct `category`.`categoryName` AS `category`,`category`.`r_supplierCode` AS `id` from `category` ;
 
 -- --------------------------------------------------------
 
@@ -608,7 +651,7 @@ INSERT INTO `supplier_phonenumber` (`supplierCode`, `phoneNumber`) VALUES
 --
 DROP TABLE IF EXISTS `getallorders`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallorders`  AS SELECT `customer_order`.`orderCode` AS `orderCode`, `customer_order`.`totalPrice` AS `totalPrice`, `customer`.`customerCode` AS `customerCode`, concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` FROM (`customer_order` join `customer`) WHERE `customer_order`.`r_customerCode` = `customer`.`customerCode` ORDER BY `customer_order`.`orderCode` ASC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallorders`  AS  select `customer_order`.`orderCode` AS `orderCode`,`customer_order`.`totalPrice` AS `totalPrice`,`customer`.`customerCode` AS `customerCode`,concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` from (`customer_order` join `customer`) where `customer_order`.`r_customerCode` = `customer`.`customerCode` order by `customer_order`.`orderCode` ;
 
 -- --------------------------------------------------------
 
@@ -617,7 +660,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getalltransaction`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getalltransaction`  AS SELECT `category`.`categoryName` AS `categoryName`, `relationprovide_provideinformation`.`date` AS `Date`, `relationprovide_provideinformation`.`purchasePrice` AS `purchasePrice`, `relationprovide_provideinformation`.`quantity` AS `Quantity`, `supplier`.`supplierName` AS `supplierName`, `supplier`.`supplierCode` AS `supplierCode` FROM ((`category` join `relationprovide_provideinformation`) join `supplier`) WHERE `category`.`categoryCode` = `relationprovide_provideinformation`.`categoryCode` AND `supplier`.`supplierCode` = `category`.`r_supplierCode` ORDER BY `relationprovide_provideinformation`.`date` DESC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getalltransaction`  AS  select `category`.`categoryName` AS `categoryName`,`relationprovide_provideinformation`.`date` AS `Date`,`relationprovide_provideinformation`.`purchasePrice` AS `purchasePrice`,`relationprovide_provideinformation`.`quantity` AS `Quantity`,`supplier`.`supplierName` AS `supplierName`,`supplier`.`supplierCode` AS `supplierCode` from ((`category` join `relationprovide_provideinformation`) join `supplier`) where `category`.`categoryCode` = `relationprovide_provideinformation`.`categoryCode` and `supplier`.`supplierCode` = `category`.`r_supplierCode` order by `relationprovide_provideinformation`.`date` desc ;
 
 -- --------------------------------------------------------
 
@@ -626,7 +669,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getcustomersname`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getcustomersname`  AS SELECT DISTINCT concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` FROM `customer` ORDER BY `customer`.`customerFirstName` ASC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getcustomersname`  AS  select distinct concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` from `customer` order by `customer`.`customerFirstName` ;
 
 -- --------------------------------------------------------
 
@@ -635,7 +678,16 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getsupplierinfos`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsupplierinfos`  AS SELECT `supplier`.`supplierCode` AS `supplierCode`, `supplier`.`address` AS `address`, `supplier`.`bankAccount` AS `bankAccount`, `supplier`.`taxCode` AS `taxCode`, group_concat(`supplier_phonenumber`.`phoneNumber` separator ', ') AS `phoneNumber` FROM (`supplier` left join `supplier_phonenumber` on(`supplier`.`supplierCode` = `supplier_phonenumber`.`supplierCode`)) GROUP BY `supplier`.`supplierCode` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsupplierinfos`  AS  select `supplier`.`supplierCode` AS `supplierCode`,`supplier`.`address` AS `address`,`supplier`.`bankAccount` AS `bankAccount`,`supplier`.`taxCode` AS `taxCode`,group_concat(`supplier_phonenumber`.`phoneNumber` separator ', ') AS `phoneNumber` from (`supplier` left join `supplier_phonenumber` on(`supplier`.`supplierCode` = `supplier_phonenumber`.`supplierCode`)) group by `supplier`.`supplierCode` ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `getsuppliersname`
+--
+DROP TABLE IF EXISTS `getsuppliersname`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsuppliersname`  AS  select `supplier`.`supplierCode` AS `ID`,`supplier`.`supplierName` AS `Name` from `supplier` order by `supplier`.`supplierName` ;
 
 --
 -- Indexes for dumped tables

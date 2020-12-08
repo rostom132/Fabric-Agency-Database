@@ -6,42 +6,54 @@
 			$result = $GLOBALS["db_conn"]->queryData(
 				"SELECT * FROM getCustomersName"
 			);
-			return $GLOBALS["db_conn"]->convertToArray($result);
+			$result_arr = $GLOBALS['db_conn']->convertToArray($result);
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
 		}
 
 		static function getAllOrders() {
 			$result = $GLOBALS["db_conn"]->queryData(
 				"SELECT * FROM getAllOrders"
 			);
-			return $GLOBALS["db_conn"]->convertToArray($result);
+			$result_arr = $GLOBALS['db_conn']->convertToArray($result);
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
 		}
 
 		static function getOrderByName($filterName) {
 			$result = $GLOBALS["db_conn"]->queryData(
 				"call getOrderByName('$filterName')"
 			);
-			return $GLOBALS["db_conn"]->convertToArray($result);
+			$result_arr = $GLOBALS['db_conn']->convertToArray($result);
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
 		}
 
 		static function getOrderInfo($orderCode) {
 			$result = $GLOBALS["db_conn"]->queryData(
 				"call getOrderInfo('$orderCode')"
 			);
-			return $GLOBALS["db_conn"]->convertToArray($result);
+			$result_arr = $GLOBALS['db_conn']->convertToArray($result)[0];
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
 		}
 
 		static function getOrderList($orderCode) {
 			$result = $GLOBALS["db_conn"]->queryData(
 				"call getOrderList('$orderCode')"
 			);
-			return $GLOBALS["db_conn"]->convertToArray($result);
+			$result_arr = $GLOBALS['db_conn']->convertToArray($result);
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
 		}
 
 		static function getCustomerPhone($customerCode) {
 			$result = $GLOBALS["db_conn"]->queryData(
 				"call getCustomerPhone('$customerCode')"
 			);
-			return $GLOBALS["db_conn"]->convertToArray($result);
+			$result_arr = $GLOBALS['db_conn']->convertToArray($result);
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
 		}
 	}
 ?>
