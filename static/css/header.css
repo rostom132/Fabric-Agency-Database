@@ -68,13 +68,12 @@
 }
 
 .navbar-wrapper {
-    position: absolute;
-    top: 0;
     margin: 0;
     width: 100%;
     padding: 5px 0;
     z-index: 1001;
     background: rgba(253, 250, 246, .65);
+    height: 13vh;
 }
 
 .navbar-wrapper ul {
@@ -329,7 +328,13 @@
     opacity: 1;
     visibility: visible;
 }
-#logout:focus {outline:0; border: none; background: transparent;}
+
+#logout:focus {
+    outline: 0;
+    border: none;
+    background: transparent;
+}
+
 #logout {
     border: none;
     background: transparent;

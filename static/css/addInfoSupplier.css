@@ -9,6 +9,11 @@
 
 .input_field {
     height: 35px;
+    border: 2px #4BBADC solid;
+}
+
+.input_field:focus {
+    outline: #4BBADC;
 }
 
 .schedule_add_btn {
@@ -24,6 +29,24 @@
 
 .schedule_add_btn:focus {
     outline: none;
+}
+
+@keyframes btnColor {
+    0% {
+        background-color: #4BBADC;
+    }
+    50% {
+        background-color: grey;
+    }
+    100% {
+        background-color: #4BBADC;
+    }
+}
+
+.schedule_add_btn:hover {
+    animation-name: btnColor;
+    animation-duration: 1s;
+    animation-iteration-count: infinite
 }
 
 .schedule_add_label {
@@ -67,27 +90,46 @@
     outline: none;
 }
 
+.registerSupplier-submit-btn:hover {
+    animation-name: btnColor;
+    animation-duration: 1s;
+    animation-iteration-count: infinite
+}
+
 .addInfo {
     position: absolute;
     width: 100%;
-    top: 50%;
+    transform: translate(0%, 50%);
+    /* top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-49%, -40%); */
 }
 
 .addInfo__form {
     width: 50%;
     margin-left: auto;
     margin-right: auto;
-    border: 2px solid black;
+    /* border: 2px solid black; */
+    background-color: white;
+    height: 100%;
 }
 
 .addInfo::before {
     content: "Add Supplier Information";
     color: black;
-    font-size: 32px;
+    font-size: 36px;
+    font-weight: bold;
     position: absolute;
     top: -50px;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.addBGPic {
+    height: 87vh;
+    background: #4BBADC;
+}
+
+.text-left {
+    text-align: right;
 }
