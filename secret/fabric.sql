@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.0.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2020 at 05:55 AM
--- Server version: 10.4.14-MariaDB
--- PHP Version: 7.4.10
+-- Generation Time: Dec 08, 2020 at 06:31 AM
+-- Server version: 10.4.16-MariaDB
+-- PHP Version: 7.4.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -69,6 +69,12 @@ DECLARE totalPurchasePrice INT;
 SELECT SUM(purchasePrice) into totalPurchasePrice
 FROM relationprovide_provideinformation as r_provideInformation, category 
 WHERE r_provideInformation.categoryCode = category.categoryCode AND category.r_supplierCode = input_supplierCode;
+RETURN totalPurchasePrice;
+END$$
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `getNumberOfSuppliers` (`input_supplierName` VARCHAR(70)) RETURNS INT(11) BEGIN
+DECLARE totalPurchasePrice INT;
+SELECT COUNT(`supplierCode`) INTO totalPurchasePrice FROM supplier WHERE `supplierName` = input_supplierName;
 RETURN totalPurchasePrice;
 END$$
 
@@ -647,7 +653,7 @@ INSERT INTO `supplier_phonenumber` (`supplierCode`, `phoneNumber`) VALUES
 --
 DROP TABLE IF EXISTS `getallcategories`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallcategories`  AS  select distinct `category`.`categoryName` AS `category`,`category`.`r_supplierCode` AS `id` from `category` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallcategories`  AS SELECT DISTINCT `category`.`categoryName` AS `category`, `category`.`r_supplierCode` AS `id` FROM `category` ;
 
 -- --------------------------------------------------------
 
@@ -656,7 +662,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getallorders`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallorders`  AS  select `customer_order`.`orderCode` AS `orderCode`,`customer_order`.`totalPrice` AS `totalPrice`,`customer`.`customerCode` AS `customerCode`,concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` from (`customer_order` join `customer`) where `customer_order`.`r_customerCode` = `customer`.`customerCode` order by `customer_order`.`orderCode` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallorders`  AS SELECT `customer_order`.`orderCode` AS `orderCode`, `customer_order`.`totalPrice` AS `totalPrice`, `customer`.`customerCode` AS `customerCode`, concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` FROM (`customer_order` join `customer`) WHERE `customer_order`.`r_customerCode` = `customer`.`customerCode` ORDER BY `customer_order`.`orderCode` ASC ;
 
 -- --------------------------------------------------------
 
@@ -665,7 +671,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getalltransaction`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getalltransaction`  AS  select `category`.`categoryName` AS `categoryName`,`relationprovide_provideinformation`.`date` AS `Date`,`relationprovide_provideinformation`.`purchasePrice` AS `purchasePrice`,`relationprovide_provideinformation`.`quantity` AS `Quantity`,`supplier`.`supplierName` AS `supplierName`,`supplier`.`supplierCode` AS `supplierCode` from ((`category` join `relationprovide_provideinformation`) join `supplier`) where `category`.`categoryCode` = `relationprovide_provideinformation`.`categoryCode` and `supplier`.`supplierCode` = `category`.`r_supplierCode` order by `relationprovide_provideinformation`.`date` desc ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getalltransaction`  AS SELECT `category`.`categoryName` AS `categoryName`, `relationprovide_provideinformation`.`date` AS `Date`, `relationprovide_provideinformation`.`purchasePrice` AS `purchasePrice`, `relationprovide_provideinformation`.`quantity` AS `Quantity`, `supplier`.`supplierName` AS `supplierName`, `supplier`.`supplierCode` AS `supplierCode` FROM ((`category` join `relationprovide_provideinformation`) join `supplier`) WHERE `category`.`categoryCode` = `relationprovide_provideinformation`.`categoryCode` AND `supplier`.`supplierCode` = `category`.`r_supplierCode` ORDER BY `relationprovide_provideinformation`.`date` DESC ;
 
 -- --------------------------------------------------------
 
@@ -674,7 +680,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getcustomersname`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getcustomersname`  AS  select distinct concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` from `customer` order by `customer`.`customerFirstName` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getcustomersname`  AS SELECT DISTINCT concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` FROM `customer` ORDER BY `customer`.`customerFirstName` ASC ;
 
 -- --------------------------------------------------------
 
@@ -683,7 +689,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getsupplierinfos`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsupplierinfos`  AS  select `supplier`.`supplierCode` AS `supplierCode`,`supplier`.`address` AS `address`,`supplier`.`bankAccount` AS `bankAccount`,`supplier`.`taxCode` AS `taxCode`,group_concat(`supplier_phonenumber`.`phoneNumber` separator ', ') AS `phoneNumber` from (`supplier` left join `supplier_phonenumber` on(`supplier`.`supplierCode` = `supplier_phonenumber`.`supplierCode`)) group by `supplier`.`supplierCode` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsupplierinfos`  AS SELECT `supplier`.`supplierCode` AS `supplierCode`, `supplier`.`address` AS `address`, `supplier`.`bankAccount` AS `bankAccount`, `supplier`.`taxCode` AS `taxCode`, group_concat(`supplier_phonenumber`.`phoneNumber` separator ', ') AS `phoneNumber` FROM (`supplier` left join `supplier_phonenumber` on(`supplier`.`supplierCode` = `supplier_phonenumber`.`supplierCode`)) GROUP BY `supplier`.`supplierCode` ;
 
 -- --------------------------------------------------------
 
@@ -692,7 +698,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getsuppliersname`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsuppliersname`  AS  select `supplier`.`supplierCode` AS `ID`,`supplier`.`supplierName` AS `Name` from `supplier` order by `supplier`.`supplierName` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsuppliersname`  AS SELECT `supplier`.`supplierCode` AS `ID`, `supplier`.`supplierName` AS `Name` FROM `supplier` ORDER BY `supplier`.`supplierName` ASC ;
 
 --
 -- Indexes for dumped tables

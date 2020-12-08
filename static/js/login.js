@@ -11,7 +11,7 @@ $("#Login_Btn_Submit").click(function() {
             if (responseText == "Wrong") {
                 alert("Wrong password");
             } else {
-                window.location.replace(window.location.origin + window.location.pathname + 'transaction');
+                window.location.replace(window.location.origin + '/Fabric-Agency-Database/transaction');
             }
         },
         async: true
