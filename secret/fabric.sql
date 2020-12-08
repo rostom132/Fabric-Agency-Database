@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2020 at 06:31 AM
+-- Generation Time: Dec 08, 2020 at 07:13 AM
 -- Server version: 10.4.16-MariaDB
 -- PHP Version: 7.4.12
 
@@ -254,8 +254,9 @@ CREATE TABLE `category_sellingprice` (
 INSERT INTO `category_sellingprice` (`categoryCode`, `price`, `date`) VALUES
 (1, 133, '2020-12-01'),
 (1, 175, '2020-12-02'),
-(1, 200, '2020-12-05'),
-(2, 199, '2020-12-01'),
+(1, 199, '2020-12-05'),
+(2, 200, '2020-12-01'),
+(2, 300, '2020-12-31'),
 (3, 266, '2020-12-01'),
 (4, 250, '2020-12-01'),
 (5, 300, '2020-12-01'),
@@ -287,8 +288,9 @@ CREATE TABLE `customer` (
 
 INSERT INTO `customer` (`customerCode`, `customerFirstName`, `customerLastName`, `address`, `arrearage`) VALUES
 (1, 'Thien', 'Nhan Ngoc', '186/1 Bình Tân', 3620),
-(2, 'Tien', 'Tran Dinh', '110B Tân Phú', 0),
-(3, 'Phuong', 'Pham Nhat', '11/7 Tân Bình', 0);
+(2, 'Tien', 'Tran Dinh', '110B Tân Phú', 5000),
+(3, 'Phuong', 'Pham Nhat', '11/7 Tân Bình', 13000),
+(4, 'Nhân', 'Nguyễn Hưu Trung', '123/9 Đường 3/2, quận 10', 0);
 
 -- --------------------------------------------------------
 
@@ -307,7 +309,10 @@ CREATE TABLE `customer_order` (
 --
 
 INSERT INTO `customer_order` (`orderCode`, `totalPrice`, `r_customerCode`) VALUES
-(7, 5320, 1);
+(7, 5320, 1),
+(8, 5490, 2),
+(9, 0, 4),
+(10, 23000, 3);
 
 --
 -- Triggers `customer_order`
@@ -342,7 +347,9 @@ CREATE TABLE `customer_partialpayment` (
 INSERT INTO `customer_partialpayment` (`customerCode`, `date`, `money`) VALUES
 (1, '2020-12-06', 200),
 (1, '2020-12-06', 500),
-(1, '2020-12-06', 1000);
+(1, '2020-12-06', 1000),
+(2, '2020-12-08', 490),
+(3, '2020-12-08', 10000);
 
 --
 -- Triggers `customer_partialpayment`
@@ -405,7 +412,9 @@ CREATE TABLE `employee` (
 --
 
 INSERT INTO `employee` (`employeeCode`, `employeeFirstName`, `employeeLastName`, `genre`, `address`, `phoneNumber`) VALUES
-(1, 'Khoa', 'Nguyen Viet', 'M', 'Quận 7', '123456789');
+(1, 'Khoa', 'Nguyen Viet', 'M', 'Quận 7', '123456789'),
+(2, 'Thomas', 'Tom', 'F', '84/1 Gò Dầu, Tân Phú', '0962764218'),
+(3, 'Tuan', 'Ngo Duc', 'M', '12/34/96 Cộng Hóa, Quận Tân Bình', '0853546345');
 
 -- --------------------------------------------------------
 
@@ -498,7 +507,11 @@ CREATE TABLE `relationcontain_containbolt` (
 --
 
 INSERT INTO `relationcontain_containbolt` (`categoryCode`, `boltCode`, `orderCode`) VALUES
-(3, 2, 7);
+(3, 2, 7),
+(2, 1, 8),
+(6, 1, 8),
+(1, 4, 10),
+(2, 2, 10);
 
 --
 -- Triggers `relationcontain_containbolt`
@@ -562,7 +575,10 @@ CREATE TABLE `relationprocess_processorder` (
 --
 
 INSERT INTO `relationprocess_processorder` (`orderCode`, `employeeCode`, `time`, `date`) VALUES
-(7, 1, '12:33:23', '2020-12-06');
+(7, 1, '12:33:23', '2020-12-06'),
+(8, 2, '13:00:08', '2020-12-08'),
+(9, 3, '13:02:04', '2020-12-08'),
+(10, 2, '13:02:42', '2020-11-15');
 
 -- --------------------------------------------------------
 
@@ -800,19 +816,19 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `customerCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `customerCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `customer_order`
 --
 ALTER TABLE `customer_order`
-  MODIFY `orderCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `orderCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `employee`
 --
 ALTER TABLE `employee`
-  MODIFY `employeeCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `employeeCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `supplier`
