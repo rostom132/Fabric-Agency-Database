@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2020 at 04:38 AM
+-- Generation Time: Dec 08, 2020 at 05:55 AM
 -- Server version: 10.4.14-MariaDB
 -- PHP Version: 7.4.10
 
@@ -611,7 +611,8 @@ CREATE TABLE `supplier` (
 INSERT INTO `supplier` (`supplierCode`, `supplierName`, `address`, `bankAccount`, `taxCode`) VALUES
 (1, 'Silk Agency', '17/10 Bình Tân', '0953756463228754', '3600416862-002'),
 (2, 'Cotton Agency', '330A Quận 11', '0915077211241413', '2500557716'),
-(3, 'Leather Agency', '20/11/B Quận 10', '0743684285147217', '2500241938');
+(3, 'Leather Agency', '20/11/B Quận 10', '0743684285147217', '2500241938'),
+(11, 'Rita Company', '17 Lô A, Lý Thường Kiệt, Quận 10', '0000111122223333', '123456');
 
 -- --------------------------------------------------------
 
@@ -633,7 +634,11 @@ INSERT INTO `supplier_phonenumber` (`supplierCode`, `phoneNumber`) VALUES
 (1, '08969935447'),
 (1, '0969935447'),
 (2, '0853546345'),
-(3, '0977445765');
+(3, '0977445765'),
+(11, '0912345678'),
+(11, '0922345678'),
+(11, '0932345678'),
+(11, '0942345678');
 
 -- --------------------------------------------------------
 
@@ -807,7 +812,7 @@ ALTER TABLE `employee`
 -- AUTO_INCREMENT for table `supplier`
 --
 ALTER TABLE `supplier`
-  MODIFY `supplierCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `supplierCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- Constraints for dumped tables

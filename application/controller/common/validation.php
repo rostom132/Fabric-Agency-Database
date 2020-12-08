@@ -5,7 +5,7 @@
         
         static function createResponse(&$response , $error) {
             if ($response == '') {
-                $response .= "ERROR when validate " . $error;
+                $response .= "ERROR: " . $error;
             } else {
                 $response .= ", " . $error;
             }
@@ -16,10 +16,10 @@
             $response = '';
             switch($table) {
                 case 'supplier_phonenumber':
-                    if (empty($data['phone'])) return "Please input atleast 1 phone number";
+                    if (empty($data['phone'])) return "Please input at least 1 phone number";
                     foreach($data['phone'] as $value) {
                         if (!preg_match(Config::getRegex()['supplier_phonenumber']['phone'], $value)) {
-                            Validate::createResponse($response, "Phone Number");
+                            Validate::createResponse($response, "Phone number must contain 10 digits");
                             return $response;
                         }
                     }
@@ -28,7 +28,7 @@
                     foreach($data as $key=>$value) {
                         if (!preg_match(Config::getRegex()[$table][$key], $value)) {
                             
-                            Validate::createResponse($response, $key);
+                            Validate::createResponse($response, Config::getRegex()[$table][$key . "_error_response"]);
                             return $response;
                         }
                     }

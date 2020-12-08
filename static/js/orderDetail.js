@@ -181,18 +181,16 @@ function renderCustomerPhone(orderInfo) {
     });
 }
 
-function generatePDF() {
+function generatePDF(orderId) {
     var content = $("#order-detail")[0];
     const pdf = new jsPDF({
         orientation: "landscape",
         unit: "in",
     });
     pdf.addHTML(content, function() {
-        pdf.save('web.pdf');
+        pdf.save('oderInvoice' + orderId + '.pdf');
     });
 }
-
-$("#print-btn").click(() => generatePDF());
 
 $(function() {
     let parameter = window.location.href.split("&");
@@ -200,4 +198,5 @@ $(function() {
     let customerId = parameter[1].split("=")[1];
     var url = getURL(orderId, customerId);
     getOrderDetail(url);
+    $("#print-btn").click(() => generatePDF(orderId));
 })
