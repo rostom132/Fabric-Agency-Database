@@ -22,8 +22,19 @@
         return $status_phone ? 'success' : 'fail';
     }
 
+    function checkNameExist($name) {
+        if (Supplier::checkNameExist($name)) {
+            return "exist";
+        }
+        return "not exsit";
+    }
+
     if (isset($_POST['inputSupplier']) && isset($_SESSION['user']) && $_SESSION['user'] == 'admin') {
         echo(addNewSupplier($_POST['inputSupplier']));
+    }
+
+    if (isset($_GET['name']) && isset($_SESSION['user']) && $_SESSION['user'] == 'admin') {
+        echo(checkNameExist($_GET['name']));
     }
 
 ?>

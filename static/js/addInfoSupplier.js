@@ -49,15 +49,30 @@ $("#registerSupplier-schedule_container").on("click", ".delete_icon", function()
 
 $("#registerSupplier-submit-btn").on("click", function supply() {
     var inputInfoSupplier = getDataOfSupplier();
+    var insertNewData = true;
     $.ajax({
-        type: "POST",
-        url: "application/controller/addInfoSupplier.php",
-        data: { inputSupplier: inputInfoSupplier },
+        type: "GET",
+        url: "application/controller/addInfoSupplier.php?name=" + inputInfoSupplier['name'],
         success: function(data) {
-            alert(data);
-            if (data == "success") {
-                window.location.replace(window.location.origin + "/Fabric-Agency-Database/category")
+            if (data == "exist") {
+                if (!confirm('This name is already exist! Do you want to insert it again?')) {
+                    insertNewData = false;
+                }
             }
-        }
+        },
+        async: false,
     });
+    if (insertNewData) {
+        $.ajax({
+            type: "POST",
+            url: "application/controller/addInfoSupplier.php",
+            data: { inputSupplier: inputInfoSupplier },
+            success: function(data) {
+                alert(data);
+                if (data == "success") {
+                    window.location.replace(window.location.origin + "/Fabric-Agency-Database/category")
+                }
+            }
+        });
+    }
 })

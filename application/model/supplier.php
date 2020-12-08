@@ -32,6 +32,16 @@
             return $result_arr;
         }
 
+        static function checkNameExist($name) {
+            $result = $GLOBALS['db_conn']->queryData(
+                "SELECT getNumberOfSuppliers('$name') AS numberOfSuppliers;"
+            );
+            $result_arr = $GLOBALS['db_conn']->convertToArray($result);
+            $GLOBALS["db_conn"]->freeResult($result);
+            if ($result_arr[0]['numberOfSuppliers'] > 0) return true;
+            return false;
+        }
+
         /**
          * insert info for supplier
          * @param array $input_data array of supplier info (name, address, bank_account, tax) 
