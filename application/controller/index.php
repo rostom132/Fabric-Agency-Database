@@ -1,16 +1,17 @@
 <?php
     session_start();
     if(isset($_SESSION['user']) && $_SESSION['user'] == "admin") {
-        include "../view/navbarLogout.html";
+        if (!isset($_GET['page'])) {
+            header("Location: http://localhost/Fabric-Agency-Database/transaction");
+        }
+        else {
+            $page = $_GET['page'];
+            include "../view/navbarLogout.html";   
+            include "../view/$page.html";
+        }
     }
     else {
         include "../view/navbarLogin.html";
-    }
-    if (isset($_GET['page']) && isset($_SESSION['user']) && $_SESSION['user'] == "admin"){
-        $page = $_GET['page'];
-        include "../view/$page.html";
-    }
-    else {
         include "../view/login.html";
-    }   
+    }
 ?>
