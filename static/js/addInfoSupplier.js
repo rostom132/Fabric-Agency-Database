@@ -13,7 +13,7 @@ $("#schedule_add_btn").click(function() {
     var $schedule_container = $("#registerSupplier-schedule_container");
     $schedule_container.append(`
     <div id="schedule_row_` + schedule_id + `"` + `class="group-row">
-            <input id="registerSupplier-date_` + schedule_id + `"` + ` class="form__select date_select" placeholder="Phone Number" required>
+            <input id="registerSupplier-date_` + schedule_id + `"` + ` class="form__select date_select input_field" placeholder="Phone Number" required>
             </input>
         <button id="schedule_delete_icon_` + schedule_id + `"` + ` class="schedule_icon delete_icon"><i class="fa fa-trash" aria-hidden="true"></i></button>
     </div>
@@ -43,18 +43,36 @@ function getDataOfSupplier() {
     return data;
 }
 
-$("#registerSupplier-schedule_container").on("click", ".delete_icon", function() { 
+$("#registerSupplier-schedule_container").on("click", ".delete_icon", function() {
     $(this).parent().remove();
 })
 
 $("#registerSupplier-submit-btn").on("click", function supply() {
     var inputInfoSupplier = getDataOfSupplier();
+    var insertNewData = true;
     $.ajax({
-        type: "POST",
-        url: "application/controller/addInfoSupplier.php",
-        data: { inputSupplier: inputInfoSupplier },
+        type: "GET",
+        url: "application/controller/addInfoSupplier.php?name=" + inputInfoSupplier['name'],
         success: function(data) {
-            alert(data);
-        }
+            if (data == "exist") {
+                if (!confirm('This name is already exist! Do you want to insert it again?')) {
+                    insertNewData = false;
+                }
+            }
+        },
+        async: false,
     });
+    if (insertNewData) {
+        $.ajax({
+            type: "POST",
+            url: "application/controller/addInfoSupplier.php",
+            data: { inputSupplier: inputInfoSupplier },
+            success: function(data) {
+                alert(data);
+                if (data == "success") {
+                    window.location.replace(window.location.origin + "/Fabric-Agency-Database/category")
+                }
+            }
+        });
+    }
 })

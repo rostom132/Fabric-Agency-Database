@@ -1,10 +1,5 @@
 const dateArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-let getOrderInfo_url = "application/controller/orderReport.php?orderInfo=";
-let getItemList_url = "application/controller/orderReport.php?orderList=";
-let getCustomerPhone_url = "application/controller/orderReport.php?customerCode=";
-let orderInfo = [];
-let orderList = [];
 let table = $("#order-detail");
 
 function getDateFormat(dateObj) {
@@ -14,47 +9,27 @@ function getDateFormat(dateObj) {
     return mm + " " + dd + ", " + yyyy;
 }
 
-function getOrderInfo() {
-    $.ajax({
-        type: "GET",
-        url: getOrderInfo_url,
-        success: function(response) {
-            orderInfo = JSON.parse(response)[0];
-            console.log(orderInfo);
-        },
-        async: false
-    });
+function getURL(orderId, customerId) {
+    return "application/controller/orderReport.php?orderId=" + orderId + "&customerId=" + customerId;
 }
 
-function getItemList() {
+function getOrderDetail(url) {
     $.ajax({
         type: "GET",
-        url: getItemList_url,
-        success: function(response) {
-            orderList = JSON.parse(response);
-            console.log(orderList);
-        },
-        async: false
-    });
-}
-
-function getCustomerPhone() {
-    $.ajax({
-        type: "GET",
-        url: getCustomerPhone_url,
+        url: url,
         success: function(response) {
             var data = JSON.parse(response);
-            console.log(data);
-            $.each(data, function(index, value) {
-                console.log(value);
-                $("#customer_phone_number").append(value.phoneNumber + "<br>");
-            });
+            renderHeader(data);
+            renderInformation(data);
+            renderEmployee(data);
+            renderItemList(data);
+            renderCustomerPhone(data);
         },
         async: false
-    })
+    });
 }
 
-function renderHeader() {
+function renderHeader(orderInfo) {
     var cur_date = new Date();
     cur_date = getDateFormat(cur_date);
     $(
@@ -79,7 +54,7 @@ function renderHeader() {
     ).appendTo(table);
 }
 
-function renderInformation() {
+function renderInformation(orderInfo) {
     $(
         `
 		<tr class="information">
@@ -101,7 +76,7 @@ function renderInformation() {
     ).appendTo(table);
 }
 
-function renderEmployee() {
+function renderEmployee(orderInfo) {
     $(
         `
 		<tr class="heading">
@@ -143,7 +118,7 @@ function renderEmployee() {
     ).appendTo(table);
 }
 
-function renderItemList() {
+function renderItemList(orderInfo) {
     $(
         `
 		<tr class="heading">
@@ -165,7 +140,7 @@ function renderItemList() {
 		</tr>
 		`
     ).appendTo(table);
-    $.each(orderList, function(index, value) {
+    $.each(orderInfo.orderList, function(index, value) {
         $(
             `
 			<tr class="item">
@@ -200,31 +175,28 @@ function renderItemList() {
     ).appendTo(table);
 }
 
-function generatePDF() {
+function renderCustomerPhone(orderInfo) {
+    $.each(orderInfo.customerPhone, function(index, value) {
+        $("#customer_phone_number").append(value.phoneNumber + "<br>");
+    });
+}
+
+function generatePDF(orderId) {
     var content = $("#order-detail")[0];
     const pdf = new jsPDF({
         orientation: "landscape",
         unit: "in",
     });
     pdf.addHTML(content, function() {
-        pdf.save('web.pdf');
+        pdf.save('oderInvoice' + orderId + '.pdf');
     });
 }
 
-$("#print-btn").click(() => generatePDF());
-
 $(function() {
     let parameter = window.location.href.split("&");
-    let orderCode = parameter[0].split("=")[1];
-    let customerCode = parameter[1].split("=")[1];
-    getOrderInfo_url += orderCode;
-    getItemList_url += orderCode;
-    getCustomerPhone_url += customerCode;
-    getOrderInfo();
-    getItemList();
-    renderHeader();
-    renderInformation();
-    renderEmployee();
-    renderItemList();
-    getCustomerPhone();
+    let orderId = parameter[0].split("=")[1];
+    let customerId = parameter[1].split("=")[1];
+    var url = getURL(orderId, customerId);
+    getOrderDetail(url);
+    $("#print-btn").click(() => generatePDF(orderId));
 })

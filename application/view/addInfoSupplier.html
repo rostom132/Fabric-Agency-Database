@@ -10,35 +10,50 @@
 </head>
 
 <body>
-    <div class="row addInfo">
-        <div class="container addInfo__form">
-            <div class="row group-row">
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col-6 text-center">
-                            <div class="group-row"><input class="input_field" id="input_name" placeholder="Name"></div>
-                            <div class="group-row"><input class="input_field" id="input_address" placeholder="Address"></div>
-                            <div class="group-row"><input class="input_field" id="input_tax" placeholder="Tax Code"></div>
-                            <div class="group-row"><input class="input_field" id="input_account" placeholder="Bank Account"></div>
-                        </div>
-                        <div class="col-6 text-center">
-                            <div class="group-row">
-                                <div id="registerSupplier-schedule_container">
+    <div class="addBGPic">
+        <div class="row addInfo">
+            <div class="container addInfo__form">
+                <div class="row group-row">
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-6 text-center">
+                                <div class="row group-row">
+                                    <span class="col-5 text-right"><strong>Name</strong></span>
+                                    <input class="input_field" id="input_name" placeholder="Enter name">
                                 </div>
-                                <button id="schedule_add_btn" class="schedule_add_btn"> <span class="lang schedule_add_label">Add New Phone Number</span><i class="fa fa-plus schedule_add_icon" aria-hidden="true"></i></button>
+                                <div class="row group-row">
+                                    <span class="col-5 text-right"><strong>Address</strong></span>
+                                    <input class="input_field" id="input_address" placeholder="Enter address">
+                                </div>
+                                <div class="row group-row">
+                                    <span class="col-5 text-right"><strong>Tax Code</strong></span>
+                                    <input class="input_field" id="input_tax" placeholder="Enter tax code">
+                                </div>
+                                <div class="row group-row">
+                                    <span class="col-5 text-right"><strong>Bank Account</strong></span>
+                                    <input class="input_field" id="input_account" placeholder="Enter bank account">
+                                </div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div class="group-row">
+                                    <div id="registerSupplier-schedule_container">
+                                    </div>
+                                    <button id="schedule_add_btn" class="schedule_add_btn" style="border: unset;"> <span class="lang schedule_add_label">Add New Phone Number</span><i class="fa fa-plus schedule_add_icon" aria-hidden="true"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row group-row">
-                <div class="col text-center">
-                    <button type="submit" id="registerSupplier-submit-btn" class="registerSupplier-submit-btn lang">OK
-                    </button>
+                <div class="row group-row">
+                    <div class="col text-center">
+                        <button type="submit" id="registerSupplier-submit-btn" class="registerSupplier-submit-btn lang" style="border: unset;">Add
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 </body>
 
 </html>

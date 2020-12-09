@@ -4,25 +4,29 @@
     class Category {
         static function getCategoriesBySupplier($supplier_id) {
             $result = $GLOBALS['db_conn']->queryData(
-                "SELECT `categoryCode` as code,`categoryName` as name,`color`,`quantity` FROM category WHERE `r_supplierCode` = '$supplier_id'"
+                "call getCategoriesBySupplier('$supplier_id')"
             );
-            return $GLOBALS['db_conn']->convertToArray($result);
+            $result_arr = $GLOBALS['db_conn']->convertToArray($result);
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
         }
 
         static function getAllCategories() {
             $result = $GLOBALS['db_conn']->queryData(
-                "SELECT DISTINCT`categoryName` as category, category.r_supplierCode as id FROM category"
+                "SELECT * FROM getAllCategories"
             );
-            return $GLOBALS['db_conn']->convertToArray($result);
+            $result_arr = $GLOBALS['db_conn']->convertToArray($result);
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
         }
 
         static function getSellingPrice($supplier_id){
             $result = $GLOBALS['db_conn']->queryData(
-                "SELECT `categoryCode` as code, `price`, `date` FROM category_sellingprice 
-                NATURAL JOIN category
-                WHERE category.r_supplierCode = '$supplier_id'"
+                "call getSellingPrice('$supplier_id')"
             );
-            return $GLOBALS['db_conn']->convertToArray($result);
+            $result_arr = $GLOBALS['db_conn']->convertToArray($result);
+            $GLOBALS["db_conn"]->freeResult($result);
+            return $result_arr;
         }
     }
 ?>
