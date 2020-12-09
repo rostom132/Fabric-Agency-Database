@@ -1,5 +1,14 @@
 const loginUrl = "./application/controller/login.php";
 $("#Login_Btn_Submit").click(function() {
+    login();
+});
+$(document).on('keypress', function(e) {
+    if (e.which == 13) {
+        login();
+    }
+});
+
+function login() {
     let user = $("#Login_userName").val();
     let pass = $("#Login_passWord").val();
     $.ajax({
@@ -16,4 +25,4 @@ $("#Login_Btn_Submit").click(function() {
         },
         async: true
     })
-});
+};
