@@ -169,7 +169,7 @@ function renderTableHeader() {
     <th style="width: 20%;">Category name</th>
     <th style="width: 20%;">Date</th>
     <th style="width: 20%;">Purchase Price</th>
-    <th style="width: 20%;">Quanity</th>
+    <th style="width: 20%;">Quantity</th>
     <th style="width: 20%;">Supplier</th>
 </tr>`;
 }
