@@ -21,7 +21,7 @@ function renderRecord(dataObj) {
 				<td>${value.totalPrice}</td>
 				<td id="${value.customerCode}">${value.customerCode}</td>
 				<td>${value.Name}</td>
-				<td><a href="orderDetail?order=${value.orderCode}&customer=${value.customerCode}">View details</a></td>
+				<td><a href="orderDetail?order=${value.orderCode}&customer=${value.customerCode}" target="_blank">View details</a></td>
 				</tr>
 			`
         ).appendTo(table);
