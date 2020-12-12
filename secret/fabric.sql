@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.4
+-- version 5.0.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2020 at 07:13 AM
--- Server version: 10.4.16-MariaDB
--- PHP Version: 7.4.12
+-- Generation Time: Dec 11, 2020 at 04:44 PM
+-- Server version: 10.4.14-MariaDB
+-- PHP Version: 7.4.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -25,6 +25,27 @@ DELIMITER $$
 --
 -- Procedures
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_category` (IN `i_categoryName` VARCHAR(70), IN `i_categoryColor` VARCHAR(20), IN `i_supplierCode` INT(10), IN `i_purchasePrice` INT(6), IN `i_quantity` INT(10), IN `i_sellingPrice` INT(6))  BEGIN
+    DECLARE inserted_category_id INT(10);
+    INSERT INTO category (`categoryName`, `color`,`r_supplierCode`) VALUES(i_categoryName, i_categoryColor, i_supplierCode);
+    SELECT last_insert_id() INTO inserted_category_id;
+    INSERT INTO relationprovide_provideInformation (`categoryCode`, `purchasePrice`, `quantity`) VALUES (inserted_category_id, i_purchasePrice, i_quantity);
+    INSERT INTO category_sellingprice (`categoryCode`, `price`) VALUES (inserted_category_id, i_sellingPrice);
+  END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_order` (IN `i_customerCode` INT(10), IN `i_employeeCode` INT(10), IN `i_categoryCode` INT(10), IN `i_boltCode` INT(10))  BEGIN
+    DECLARE inserted_order_id INT(10);
+    INSERT INTO customer_order (`r_customerCode`) VALUES(i_customerCode);
+    SET inserted_order_id = (SELECT last_insert_id());
+    INSERT INTO relationprocess_processorder (`orderCode`, `employeeCode`) VALUES (inserted_order_id, i_employeeCode);
+    INSERT INTO relationcontain_containbolt (`categoryCode`, `boltCode`, `orderCode`) VALUES (i_categoryCode, i_boltCode, inserted_order_id);
+  END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_supplier` (IN `supplierName` VARCHAR(70), IN `address` VARCHAR(70), IN `bankAccount` VARCHAR(22), IN `taxCode` VARCHAR(50), OUT `inserted_id` INT(10))  BEGIN
+  INSERT INTO supplier (`supplierName`, `address`, `bankAccount`, `taxCode`) VALUES (supplierName, address, bankAccount, taxCode);
+  SELECT last_insert_id() INTO inserted_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getCategoriesBySupplier` (IN `input_supplierId` INT(10))  SELECT categoryCode as code,categoryName as name,color,quantity FROM category WHERE r_supplierCode = input_supplierId$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getCustomerPhone` (IN `input_customerCode` INT(10))  SELECT customer_phonenumber.phoneNumber
@@ -37,7 +58,7 @@ WHERE customerCode = r_customerCode AND CONCAT(customerLastName, " ", customerFi
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getOrderInfo` (IN `input_orderCode` INT(10))  SELECT input_orderCode as OrderID, customerCode, employee.employeeCode, CONCAT(customerLastName, " ", customerFirstName) as customerName, customer.address as customerAddress, CONCAT(employeeLastName, " ", employeeFirstName) as employeeName, employee.address as employeeAddress, employee.phoneNumber, date, time, totalPrice
 FROM customer_order, customer, employee, relationprocess_processorder
-WHERE customer_order.orderCode = input_orderCode AND customer.customerCode = customer_order.r_customerCode AND relationprocess_processorder.orderCode = input_orderCode AND employee.employeeCode = relationprocess_processorder.employeeCode$$
+WHERE customer_order.orderCode = input_orderCode AND customer.customerCode = customer_order.r_customerCode AND relationprocess_processorder.orderCode = customer_order.orderCode AND employee.employeeCode = relationprocess_processorder.employeeCode$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getOrderList` (IN `input_orderCode` INT(10))  SELECT category.categoryCode, category.categoryName, color, bolt.boltCode, length
 FROM customer_order, relationcontain_containbolt, bolt, category
@@ -51,14 +72,46 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getSupplierInfo` (IN `input_supplie
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getSupplierPhoneNumber` (IN `input_supplierId` INT(10))  SELECT phoneNumber FROM supplier_phonenumber WHERE supplierCode = input_supplierId$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertPhones` (IN `supplier` INT(10), IN `phonesArray` LONGTEXT)  BEGIN
+    DECLARE _result longtext DEFAULT 'INSERT INTO supplier_phonenumber(supplierCode, phoneNumber) VALUES ';
+    DECLARE _counter INT DEFAULT 0;
+    
+    SET @start = 'INSERT INTO supplier_phonenumber(supplierCode, phoneNumber) VALUES ';
+    WHILE _counter < JSON_LENGTH(phonesArray) DO
+        IF _counter != 0 THEN
+            SET @start = CONCAT(@start, ', ');
+        END IF;
+        SET @start = CONCAT(@start,"('", supplier, "',", JSON_EXTRACT(phonesArray, CONCAT('$[',_counter,']')), ')');
+        SET _counter = _counter + 1;
+    END WHILE;
+	
+    PREPARE stmt FROM @start;
+    EXECUTE stmt;                                                                
+    DEALLOCATE PREPARE stmt;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sortSuppliers` (IN `startDate` DATE, IN `endDate` DATE)  BEGIN
-  SELECT supplier.supplierName, count(*) number_of_categories
-  FROM category
-  JOIN relationprovide_provideInformation as r_provideInformation ON category.categoryCode = r_provideInformation.categoryCode
-  JOIN supplier ON r_supplierCode = supplier.supplierCode
-  WHERE DATE(r_provideInformation.date) >= startDate AND DATE(r_provideInformation.date) <= endDate 
-  GROUP BY r_supplierCode
-  ORDER BY number_of_categories ASC;
+  IF ((startDate is NULL OR startDate = "") AND (endDate is NULL or endDate = ""))
+  THEN 
+    SIGNAL SQLSTATE '42927' 
+    SET MESSAGE_TEXT = 'Two parameters is not valid';
+  ELSE 
+    BEGIN
+      IF (startDate is NULL OR startDate = "")
+      THEN SET startDate = endDate;
+      END IF;
+      IF (endDate is NULL OR endDate = "")
+      THEN SET endDate = curdate();
+      END IF;
+      SELECT supplier.supplierCode, supplier.supplierName, count(*) number_of_categories
+      FROM category
+      JOIN relationprovide_provideInformation as r_provideInformation ON category.categoryCode = r_provideInformation.categoryCode
+      JOIN supplier ON r_supplierCode = supplier.supplierCode
+      WHERE DATE(r_provideInformation.date) >= startDate AND DATE(r_provideInformation.date) <= endDate 
+      GROUP BY supplier.supplierCode
+      ORDER BY number_of_categories ASC;
+    END;
+  END IF;
 END$$
 
 --
@@ -70,6 +123,15 @@ SELECT SUM(purchasePrice) into totalPurchasePrice
 FROM relationprovide_provideinformation as r_provideInformation, category 
 WHERE r_provideInformation.categoryCode = category.categoryCode AND category.r_supplierCode = input_supplierCode;
 RETURN totalPurchasePrice;
+END$$
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `calc_order_quantity` (`input_orderCode` INT(10)) RETURNS INT(11) BEGIN
+  DECLARE order_quantity INT(10);
+  SELECT count(*) into order_quantity 
+  FROM customer_order, relationcontain_containbolt
+  WHERE customer_order.orderCode = relationcontain_containbolt.orderCode AND customer_order.orderCode = input_orderCode
+  GROUP BY customer_order.orderCode;
+  RETURN order_quantity;
 END$$
 
 CREATE DEFINER=`root`@`localhost` FUNCTION `getNumberOfSuppliers` (`input_supplierName` VARCHAR(70)) RETURNS INT(11) BEGIN
@@ -94,16 +156,16 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `getPurchaseInfo` (`supplier_code` CH
             FROM category WHERE r_supplierCode = supplier_code;
     DECLARE category_purchase
         CURSOR FOR SELECT relationprovide_provideinformation.quantity, relationprovide_provideinformation.date, relationprovide_provideinformation.purchasePrice 
-	        FROM relationprovide_provideinformation WHERE categoryCode = code;
-
+        FROM relationprovide_provideinformation WHERE categoryCode = code;
+ 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-	SET purchase = '{"categories_detail": [],"total_price": ""}';
+  SET purchase = '{"categories_detail": [],"total_price": ""}';
     SET index_detail = -1;
     SET total_price = 0;
-
-
+ 
+ 
     OPEN category_info;
-
+ 
     info_loop: LOOP
         FETCH category_info INTO code, color, name;
         IF done THEN
@@ -112,7 +174,7 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `getPurchaseInfo` (`supplier_code` CH
         END IF;
         SELECT JSON_ARRAY_APPEND(purchase, '$.categories_detail', JSON_OBJECT("color", color, "name", name, "purchase_detail", JSON_ARRAY())) INTO purchase;
         SET index_detail = index_detail + 1;
-
+ 
         OPEN category_purchase;
         purchase_loop: LOOP
             FETCH category_purchase INTO quantity, date_purchase, price;
@@ -127,7 +189,7 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `getPurchaseInfo` (`supplier_code` CH
     END LOOP info_loop;
     
     SELECT JSON_REPLACE(purchase, "$.total_price", total_price) INTO purchase;
-
+ 
     RETURN purchase;
 END$$
 
@@ -169,10 +231,8 @@ CREATE TABLE `bolt` (
 --
 
 INSERT INTO `bolt` (`categoryCode`, `boltCode`, `length`) VALUES
-(1, 1, 20),
 (1, 2, 15),
 (1, 3, 50),
-(1, 4, 100),
 (2, 1, 10),
 (2, 2, 15),
 (3, 1, 10),
@@ -189,7 +249,9 @@ INSERT INTO `bolt` (`categoryCode`, `boltCode`, `length`) VALUES
 (8, 2, 20),
 (9, 1, 10),
 (9, 2, 20),
-(10, 1, 15);
+(10, 1, 15),
+(19, 1, 60),
+(19, 2, 40);
 
 --
 -- Triggers `bolt`
@@ -222,7 +284,7 @@ CREATE TABLE `category` (
 --
 
 INSERT INTO `category` (`categoryCode`, `categoryName`, `color`, `quantity`, `r_supplierCode`) VALUES
-(1, 'Tasar Silk', 'blue', 4, 1),
+(1, 'Tasar Silk', 'blue', 2, 1),
 (2, 'Muga Silk', 'green', 2, 1),
 (3, 'Eri Silk', 'purple', 2, 1),
 (4, 'Pima Cotton', 'blue', 2, 2),
@@ -233,7 +295,8 @@ INSERT INTO `category` (`categoryCode`, `categoryName`, `color`, `quantity`, `r_
 (9, 'Bonded Leather', 'purple', 2, 3),
 (10, 'Mulberry Silk', 'cyan', 1, 1),
 (11, 'Faux Leather', 'cyan', 0, 3),
-(12, 'Suede Leather', 'grey', 0, 3);
+(12, 'Suede Leather', 'grey', 0, 3),
+(19, 'Charmeuse Silk', 'white', 2, 15);
 
 -- --------------------------------------------------------
 
@@ -252,21 +315,22 @@ CREATE TABLE `category_sellingprice` (
 --
 
 INSERT INTO `category_sellingprice` (`categoryCode`, `price`, `date`) VALUES
-(1, 133, '2020-12-01'),
-(1, 175, '2020-12-02'),
-(1, 199, '2020-12-05'),
-(2, 200, '2020-12-01'),
-(2, 300, '2020-12-31'),
-(3, 266, '2020-12-01'),
+(1, 146, '2020-12-01'),
+(1, 193, '2020-12-02'),
+(1, 219, '2020-12-05'),
+(2, 220, '2020-12-01'),
+(2, 330, '2020-12-31'),
+(3, 293, '2020-12-01'),
 (4, 250, '2020-12-01'),
 (5, 300, '2020-12-01'),
 (6, 350, '2020-12-01'),
 (7, 400, '2020-12-01'),
 (8, 450, '2020-12-01'),
 (9, 500, '2020-12-01'),
-(10, 550, '2020-12-02'),
+(10, 605, '2020-12-02'),
 (11, 600, '2020-12-02'),
-(12, 650, '2020-12-02');
+(12, 650, '2020-12-02'),
+(19, 800, '2020-12-11');
 
 -- --------------------------------------------------------
 
@@ -287,10 +351,11 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`customerCode`, `customerFirstName`, `customerLastName`, `address`, `arrearage`) VALUES
-(1, 'Thien', 'Nhan Ngoc', '186/1 Bình Tân', 3620),
-(2, 'Tien', 'Tran Dinh', '110B Tân Phú', 5000),
-(3, 'Phuong', 'Pham Nhat', '11/7 Tân Bình', 13000),
-(4, 'Nhân', 'Nguyễn Hưu Trung', '123/9 Đường 3/2, quận 10', 0);
+(1, 'Thien', 'Nhan Ngoc', '186/1 Mã Lò, Quận Bình Tân', 115140),
+(2, 'Tien', 'Tran Dinh', '110B Thạch Lam, Quận Tân Phú', 5000),
+(3, 'Phuong', 'Pham Nhat', '11/7 Cộng Hòa, Quận Tân Bình', 13000),
+(4, 'Nhan', 'Nguyen Huu Trung', '123/9 Đường 3/2, Quận 10', 500),
+(5, 'Khoa', 'Truong Le Vinh', '33/8/A Phạm Ngũ Lão, Quận Gò Vấp', 0);
 
 -- --------------------------------------------------------
 
@@ -309,10 +374,11 @@ CREATE TABLE `customer_order` (
 --
 
 INSERT INTO `customer_order` (`orderCode`, `totalPrice`, `r_customerCode`) VALUES
-(7, 5320, 1),
+(7, 27050, 1),
 (8, 5490, 2),
-(9, 0, 4),
-(10, 23000, 3);
+(9, 11500, 4),
+(10, 23000, 3),
+(21, 48000, 1);
 
 --
 -- Triggers `customer_order`
@@ -349,11 +415,20 @@ INSERT INTO `customer_partialpayment` (`customerCode`, `date`, `money`) VALUES
 (1, '2020-12-06', 500),
 (1, '2020-12-06', 1000),
 (2, '2020-12-08', 490),
-(3, '2020-12-08', 10000);
+(3, '2020-12-08', 10000),
+(4, '2020-12-11', 11000);
 
 --
 -- Triggers `customer_partialpayment`
 --
+DELIMITER $$
+CREATE TRIGGER `calc_unpaidDebt_delete` AFTER DELETE ON `customer_partialpayment` FOR EACH ROW BEGIN
+    UPDATE customer 
+    SET arrearage = arrearage + OLD.money
+    WHERE customer.customerCode = OLD.customerCode;
+END
+$$
+DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `calc_unpaidDebt_insert` AFTER INSERT ON `customer_partialpayment` FOR EACH ROW UPDATE customer 
 SET arrearage = arrearage - NEW.money
@@ -390,7 +465,9 @@ INSERT INTO `customer_phonenumber` (`customerCode`, `phoneNumber`) VALUES
 (1, '0918853016'),
 (2, '0845426661'),
 (2, '0865123412'),
-(3, '0962764218');
+(3, '0962764218'),
+(4, '0975476891'),
+(5, '0935678934');
 
 -- --------------------------------------------------------
 
@@ -412,9 +489,10 @@ CREATE TABLE `employee` (
 --
 
 INSERT INTO `employee` (`employeeCode`, `employeeFirstName`, `employeeLastName`, `genre`, `address`, `phoneNumber`) VALUES
-(1, 'Khoa', 'Nguyen Viet', 'M', 'Quận 7', '123456789'),
-(2, 'Thomas', 'Tom', 'F', '84/1 Gò Dầu, Tân Phú', '0962764218'),
-(3, 'Tuan', 'Ngo Duc', 'M', '12/34/96 Cộng Hóa, Quận Tân Bình', '0853546345');
+(1, 'Khoa', 'Nguyen Viet', 'M', '127/80/13 Nguyễn Thị Thập, Quận 7', '0123456769'),
+(2, 'Thomas', 'Tom', 'F', '84/1 Gò Dầu, Quận Tân Phú', '0962764218'),
+(3, 'Tuan', 'Ngo Duc', 'M', '12/34/96 Cộng Hóa, Quận Tân Bình', '0853546345'),
+(4, 'Cuong', 'Tran Trinh', 'M', '68 Bình Trị Đông, Quận Bình Tân', '0914567895');
 
 -- --------------------------------------------------------
 
@@ -508,10 +586,15 @@ CREATE TABLE `relationcontain_containbolt` (
 
 INSERT INTO `relationcontain_containbolt` (`categoryCode`, `boltCode`, `orderCode`) VALUES
 (3, 2, 7),
+(6, 2, 7),
+(10, 1, 7),
 (2, 1, 8),
 (6, 1, 8),
-(1, 4, 10),
-(2, 2, 10);
+(4, 1, 9),
+(5, 1, 9),
+(5, 2, 9),
+(2, 2, 10),
+(19, 1, 21);
 
 --
 -- Triggers `relationcontain_containbolt`
@@ -527,33 +610,17 @@ END
 $$
 DELIMITER ;
 DELIMITER $$
-CREATE TRIGGER `update_totalPrice` AFTER UPDATE ON `relationcontain_containbolt` FOR EACH ROW BEGIN
-    DECLARE length FLOAT;
-    DECLARE old_length FLOAT;
-    DECLARE price INT(10) DEFAULT 0;
-    DECLARE old_selling_price INT(6);
-    DECLARE change_count INT(10) DEFAULT 0;
-    IF (!(NEW.boltCode <=> OLD.boltCode) AND !(NEW.categoryCode <=> OLD.categoryCode)) THEN
-      SET length = (select get_length(NEW.categoryCode, NEW.boltcode));
-      SET price = (select get_selling_price(NEW.categoryCode));
-      SET change_count = change_count + 1;
-    ELSE
-      IF !(NEW.boltCode <=> OLD.boltCode) THEN
-        SET length = (select get_length(OLD.categoryCode, NEW.boltCode));
-        SET price = (select get_selling_price(OLD.categoryCode));
-        SET change_count = change_count + 1;
-      ELSEIF !(NEW.categoryCode <=> OLD.categoryCode) THEN
-        SET length = (select get_length(NEW.categoryCode, OLD.boltCode));
-        SET price = (select get_selling_price(NEW.categoryCode));
-        SET change_count = change_count + 1;
-      END IF;
+CREATE TRIGGER `delete_containBolt` BEFORE DELETE ON `relationcontain_containbolt` FOR EACH ROW BEGIN
+    DECLARE order_quantity INT(10);
+    SELECT calc_order_quantity(OLD.orderCode) INTO order_quantity;
+    IF order_quantity <=> 1
+    THEN 
+      BEGIN
+        SIGNAL SQLSTATE '42927' 
+        SET MESSAGE_TEXT = 'Order must contain at least 1 item';
+      END;
     END IF;
-    IF (change_count > 0) THEN
-      SET old_length = (select get_length(OLD.categoryCode, OLD.boltCode));
-      SET old_selling_price = (select get_selling_price(OLD.categoryCode));
-      UPDATE customer_order SET customer_order.totalPrice = customer_order.totalPrice + (price*length - old_length*old_selling_price) WHERE customer_order.orderCode = orderCode;
-    END IF;
-END
+  END
 $$
 DELIMITER ;
 
@@ -578,7 +645,8 @@ INSERT INTO `relationprocess_processorder` (`orderCode`, `employeeCode`, `time`,
 (7, 1, '12:33:23', '2020-12-06'),
 (8, 2, '13:00:08', '2020-12-08'),
 (9, 3, '13:02:04', '2020-12-08'),
-(10, 2, '13:02:42', '2020-11-15');
+(10, 2, '13:02:42', '2020-11-15'),
+(21, 4, '21:51:57', '2020-12-11');
 
 -- --------------------------------------------------------
 
@@ -610,7 +678,8 @@ INSERT INTO `relationprovide_provideinformation` (`categoryCode`, `purchasePrice
 (9, 460, 0, '2020-12-01'),
 (10, 400, 15, '2020-12-02'),
 (11, 410, 0, '2020-12-02'),
-(12, 430, 0, '2020-12-02');
+(12, 430, 0, '2020-12-02'),
+(19, 700, 100, '2020-12-11');
 
 -- --------------------------------------------------------
 
@@ -622,7 +691,7 @@ CREATE TABLE `supplier` (
   `supplierCode` int(10) UNSIGNED NOT NULL,
   `supplierName` varchar(70) NOT NULL,
   `address` varchar(70) DEFAULT NULL,
-  `bankAccount` varchar(22) NOT NULL,
+  `bankAccount` varchar(22) DEFAULT NULL,
   `taxCode` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -631,10 +700,11 @@ CREATE TABLE `supplier` (
 --
 
 INSERT INTO `supplier` (`supplierCode`, `supplierName`, `address`, `bankAccount`, `taxCode`) VALUES
-(1, 'Silk Agency', '17/10 Bình Tân', '0953756463228754', '3600416862-002'),
-(2, 'Cotton Agency', '330A Quận 11', '0915077211241413', '2500557716'),
-(3, 'Leather Agency', '20/11/B Quận 10', '0743684285147217', '2500241938'),
-(11, 'Rita Company', '17 Lô A, Lý Thường Kiệt, Quận 10', '0000111122223333', '123456');
+(1, 'Silk Agency', '17/10 Đường số 6, Quận Bình Tân', '0953756463228754', '3600416862-002'),
+(2, 'Cotton Agency', '330A Bình Thới, Quận 11', '0915077211241413', '2500557716'),
+(3, 'Leather Agency', '20/11/B Điện Biên Phủ Quận 10', '0743684285147217', '2500241938'),
+(11, 'Rita Company', '17 Lô A, Lý Thường Kiệt, Quận 10', '0000111122223333', '0102030405'),
+(15, 'Silk Agency', '80/7/A Lạc Long Quân, Quận 10', '0986335711112222', '0134567823');
 
 -- --------------------------------------------------------
 
@@ -660,7 +730,8 @@ INSERT INTO `supplier_phonenumber` (`supplierCode`, `phoneNumber`) VALUES
 (11, '0912345678'),
 (11, '0922345678'),
 (11, '0932345678'),
-(11, '0942345678');
+(11, '0942345678'),
+(15, '0933567893');
 
 -- --------------------------------------------------------
 
@@ -669,7 +740,7 @@ INSERT INTO `supplier_phonenumber` (`supplierCode`, `phoneNumber`) VALUES
 --
 DROP TABLE IF EXISTS `getallcategories`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallcategories`  AS SELECT DISTINCT `category`.`categoryName` AS `category`, `category`.`r_supplierCode` AS `id` FROM `category` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallcategories`  AS  select distinct `category`.`categoryName` AS `category`,`category`.`r_supplierCode` AS `id` from `category` ;
 
 -- --------------------------------------------------------
 
@@ -678,7 +749,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getallorders`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallorders`  AS SELECT `customer_order`.`orderCode` AS `orderCode`, `customer_order`.`totalPrice` AS `totalPrice`, `customer`.`customerCode` AS `customerCode`, concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` FROM (`customer_order` join `customer`) WHERE `customer_order`.`r_customerCode` = `customer`.`customerCode` ORDER BY `customer_order`.`orderCode` ASC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getallorders`  AS  select `customer_order`.`orderCode` AS `orderCode`,`customer_order`.`totalPrice` AS `totalPrice`,`customer`.`customerCode` AS `customerCode`,concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` from (`customer_order` join `customer`) where `customer_order`.`r_customerCode` = `customer`.`customerCode` order by `customer_order`.`orderCode` ;
 
 -- --------------------------------------------------------
 
@@ -687,7 +758,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getalltransaction`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getalltransaction`  AS SELECT `category`.`categoryName` AS `categoryName`, `relationprovide_provideinformation`.`date` AS `Date`, `relationprovide_provideinformation`.`purchasePrice` AS `purchasePrice`, `relationprovide_provideinformation`.`quantity` AS `Quantity`, `supplier`.`supplierName` AS `supplierName`, `supplier`.`supplierCode` AS `supplierCode` FROM ((`category` join `relationprovide_provideinformation`) join `supplier`) WHERE `category`.`categoryCode` = `relationprovide_provideinformation`.`categoryCode` AND `supplier`.`supplierCode` = `category`.`r_supplierCode` ORDER BY `relationprovide_provideinformation`.`date` DESC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getalltransaction`  AS  select `category`.`categoryName` AS `categoryName`,`relationprovide_provideinformation`.`date` AS `Date`,`relationprovide_provideinformation`.`purchasePrice` AS `purchasePrice`,`relationprovide_provideinformation`.`quantity` AS `Quantity`,`supplier`.`supplierName` AS `supplierName`,`supplier`.`supplierCode` AS `supplierCode` from ((`category` join `relationprovide_provideinformation`) join `supplier`) where `category`.`categoryCode` = `relationprovide_provideinformation`.`categoryCode` and `supplier`.`supplierCode` = `category`.`r_supplierCode` order by `relationprovide_provideinformation`.`date` desc ;
 
 -- --------------------------------------------------------
 
@@ -696,7 +767,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getcustomersname`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getcustomersname`  AS SELECT DISTINCT concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` FROM `customer` ORDER BY `customer`.`customerFirstName` ASC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getcustomersname`  AS  select distinct concat(`customer`.`customerLastName`,' ',`customer`.`customerFirstName`) AS `Name` from `customer` order by `customer`.`customerFirstName` ;
 
 -- --------------------------------------------------------
 
@@ -705,7 +776,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getsupplierinfos`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsupplierinfos`  AS SELECT `supplier`.`supplierCode` AS `supplierCode`, `supplier`.`address` AS `address`, `supplier`.`bankAccount` AS `bankAccount`, `supplier`.`taxCode` AS `taxCode`, group_concat(`supplier_phonenumber`.`phoneNumber` separator ', ') AS `phoneNumber` FROM (`supplier` left join `supplier_phonenumber` on(`supplier`.`supplierCode` = `supplier_phonenumber`.`supplierCode`)) GROUP BY `supplier`.`supplierCode` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsupplierinfos`  AS  select `supplier`.`supplierCode` AS `supplierCode`,`supplier`.`address` AS `address`,`supplier`.`bankAccount` AS `bankAccount`,`supplier`.`taxCode` AS `taxCode`,group_concat(`supplier_phonenumber`.`phoneNumber` separator ', ') AS `phoneNumber` from (`supplier` left join `supplier_phonenumber` on(`supplier`.`supplierCode` = `supplier_phonenumber`.`supplierCode`)) group by `supplier`.`supplierCode` ;
 
 -- --------------------------------------------------------
 
@@ -714,7 +785,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `getsuppliersname`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsuppliersname`  AS SELECT `supplier`.`supplierCode` AS `ID`, `supplier`.`supplierName` AS `Name` FROM `supplier` ORDER BY `supplier`.`supplierName` ASC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `getsuppliersname`  AS  select `supplier`.`supplierCode` AS `ID`,`supplier`.`supplierName` AS `Name` from `supplier` order by `supplier`.`supplierName` ;
 
 --
 -- Indexes for dumped tables
@@ -810,31 +881,31 @@ ALTER TABLE `supplier_phonenumber`
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `categoryCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `categoryCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `customerCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `customerCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `customer_order`
 --
 ALTER TABLE `customer_order`
-  MODIFY `orderCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `orderCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `employee`
 --
 ALTER TABLE `employee`
-  MODIFY `employeeCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `employeeCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `supplier`
 --
 ALTER TABLE `supplier`
-  MODIFY `supplierCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `supplierCode` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- Constraints for dumped tables
@@ -880,7 +951,7 @@ ALTER TABLE `customer_phonenumber`
 -- Constraints for table `relationcontain_containbolt`
 --
 ALTER TABLE `relationcontain_containbolt`
-  ADD CONSTRAINT `relationContain_containBolt_fk_bolt` FOREIGN KEY (`categoryCode`,`boltCode`) REFERENCES `bolt` (`categoryCode`, `boltCode`) ON DELETE CASCADE,
+  ADD CONSTRAINT `relationContain_containBolt_fk_bolt` FOREIGN KEY (`categoryCode`,`boltCode`) REFERENCES `bolt` (`categoryCode`, `boltCode`),
   ADD CONSTRAINT `relationContain_containBolt_fk_order` FOREIGN KEY (`orderCode`) REFERENCES `customer_order` (`orderCode`) ON DELETE CASCADE;
 
 --

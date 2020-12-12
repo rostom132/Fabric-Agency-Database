@@ -49,18 +49,20 @@
          * @return integer id of new supplier if success
          * @return flase if fail
          */ 
-        static function inputNewSupplier($input_data) {
-            $columns = array_keys($input_data);
-            foreach ( $columns as &$value) {
-                $value = $GLOBALS['db_conn'] -> convertToColumnName('supplier', $value);
-            }
-            $values = array_values($input_data);
-
+        static function inputNewSupplier($input_data) {  
+            $supplierName = (isset($input_data["name"]) && $input_data["name"] != null) ? $input_data["name"] : "";
+            $address = (isset($input_data["address"]) && $input_data["address"] != null) ? $input_data["address"] : "";
+            $bankAccount = (isset($input_data["tax"]) && $input_data["tax"] != null) ? $input_data["tax"] : "";
+            $taxCode = (isset($input_data["bank_account"]) && $input_data["bank_account"] != null) ? $input_data["bank_account"] : "";
             $result = $GLOBALS['db_conn']->queryData(
-                "INSERT INTO `supplier` (`" .implode("`, `",$columns) ."`" .") 
-                VALUES ('" . implode("', '", $values) . "' )"
+                "call add_supplier('$supplierName', '$address', '$bankAccount', '$taxCode', @id)"
             );
-            if ($result) return ($GLOBALS['db_conn'] -> getNewInsertedId());
+            $result = $GLOBALS['db_conn']->queryData(
+                "SELECT @id"
+            );
+            if($result) {
+                return $GLOBALS['db_conn']->convertToArray($result)[0]["@id"];
+            }
             return false;
         }
 
@@ -72,15 +74,9 @@
          * @return integer id
          */ 
         static function inputPhoneNumberSupplier($supplier_id, $phone_numbers) {
-            $sql = '';
-            foreach ($phone_numbers AS $val) {
-                if ($sql !=  '') $sql.= ',';
-                $sql .= "('$supplier_id', '$val')";
-            }
-
+            $phone_numbers_string = '["' . implode('","', $phone_numbers) . '"]';
             $result = $GLOBALS['db_conn']->queryData(
-                "INSERT INTO `supplier_phonenumber` (`" .$GLOBALS['db_conn'] -> convertToColumnName('supplier_phonenumber', 'ID') ."`,`" .$GLOBALS['db_conn'] -> convertToColumnName('supplier_phonenumber', 'phone') . "`) 
-                VALUES" .$sql
+               "call insertPhones('$supplier_id', '$phone_numbers_string')"
             );
             if ($result) return true;
             return false;

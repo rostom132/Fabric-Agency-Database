@@ -1,6 +1,6 @@
 function addSelectOptions(selectValues) {
     $.each(selectValues, function(key, value) {
-        $('#supplier').append(new Option(value['Name'], value['ID'], ));
+        $("#supplier").append("<option data-subtext='ID=" + value['ID'] + "'value='" + value['ID'] + "'>" + value['Name'] + "</option>");
     });
     $('#supplier').val('default').selectpicker('deselectAll');
     $('#supplier').selectpicker('refresh');
